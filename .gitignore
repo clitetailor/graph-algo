@@ -1,0 +1,13 @@
+.DS_Store
+.vagrant
+.env
+.git
+
+node_modules
+package-lock.json
+yarn*.log
+yarn.lock
+
+!.gitkeep
+public
+server/assets/*
