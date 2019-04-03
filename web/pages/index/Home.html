@@ -1,6 +1,9 @@
 <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
   <header class="mdl-layout__header">
     <div class="mdl-layout__header-row">
+      <div on:click="{() => window.history.back()}">
+        <i class="material-icons">Back</i>
+      </div>
       <div class="mdl-layout-spacer"></div>
       <nav class="mdl-navigation">
         <a class="mdl-navigation__link" href="/login">Login</a>
@@ -13,7 +16,7 @@
   <main class="mdl-layout__content">
     <div class="Home__main">
       <div class="Home__title">
-        <h3>QR Code Tracking</h3>
+        <h3>Graph Algo</h3>
       </div>
       <div class="Home__action">
         <button

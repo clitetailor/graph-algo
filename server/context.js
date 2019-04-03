@@ -1,5 +1,4 @@
-function context(input) {
-}
+function context(input) {}
 
 module.exports = {
   context

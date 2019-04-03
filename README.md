@@ -1,4 +1,4 @@
-# QR Code Tracking
+# Graph Algorithms
 
 ## Prerequisite
 
@@ -7,10 +7,6 @@
 - PostgreSQL
 
 ## Installation
-
-### DotEnv
-
-`.dotenv` contains the API Keys for Here Maps. You need to make a copy of `.dotenv` from the current `.dotenv.example`. Create a new account at [Here developer portal](`https://developer.here.com/`) and replace the placeholder in `.dotenv` with your own keys.
 
 ### Database
 
@@ -34,16 +30,20 @@ $ yarn
 
 ## Start the Server
 
-To run the program, you need to run the web development server alongside the node backend server
-
-To start the web development server run:
+To start the development server and web front-end build run the following command:
 
 ```bash
-$ yarn web:dev
+$ yarn dev
 ```
 
-To start the node backend development server run:
+To start development server and web front-end build individually. Run the development server:
 
 ```bash
 $ yarn server:dev
+```
+
+Alongside with web build watch:
+
+```bash
+$ yarn web:dev
 ```

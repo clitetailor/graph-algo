@@ -1,9 +1,7 @@
-const Koa = require('koa')
-const cors = require('@koa/cors')
-const koaBody = require('koa-body')
-const router = require('koa-router')
-const serve = require('koa-static')
-const { ApolloServer } = require('apollo-server-koa')
+const express = require('express')
+const cors = require('cors')
+const bodyParser = require('body-parser')
+const { ApolloServer } = require('apollo-server-express')
 const winston = require('winston')
 const history = require('connect-history-api-fallback')
 const path = require('path')
@@ -16,10 +14,11 @@ const { context } = require('./context')
 configureLogging()
 configureDotEnv()
 
-const app = new Koa()
+const app = express()
 
 app.use(cors())
-app.use(koaBody())
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: false }))
 
 const server = new ApolloServer({
   schema: graphqlSchema,
@@ -29,17 +28,13 @@ const server = new ApolloServer({
 })
 server.applyMiddleware({ app })
 
-app.use(async (ctx, next) => {
-  await new Promise(resolve => {
-    history()(ctx.request, ctx.response, () => resolve())
-  })
-  await next()
-})
-app.use(serve(path.resolve(__dirname, '../public')))
+app.use(history())
+app.use(express.static(path.resolve(__dirname, '../public')))
 
-app.listen({ port: 4000 }, async () => {
-  winston.info(`🚀  Server ready at http://localhost:4000`)
+const port = 4000
+app.listen(port, () => {
+  winston.info(`🚀  Server ready at http://localhost:${port}`)
   winston.info(
-    'GraphQL server is available at https://localhost:4000/graphql'
+    `GraphQL server is available at https://localhost:${port}/graphql`
   )
 })
