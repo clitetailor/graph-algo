@@ -6,8 +6,9 @@
     "dev": "run-p web:autobuild server:dev",
     "server:start": "node server/index.js",
     "server:dev": "nodemon --watch server -q server/index.js",
+    "web:dev": "npm-run-all web:autobuild",
     "web:build": "rollup -c rollup.config.js",
-    "web:dev": "rollup -c rollup.config.js -w public",
+    "web:autobuild": "rollup -c rollup.config.js -w",
     "database:migrate": "sequelize db:migrate",
     "prettier": "prettier --config .prettierrc.yaml --write web/**/*.js --write server/**/*.js"
   },

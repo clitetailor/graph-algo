@@ -24,6 +24,7 @@ export default {
     name: 'app',
     file: path.resolve(__dirname, 'public/bundle.js')
   },
+  onwarn: () => {},
   plugins: [
     svelte({
       dev: !production,
