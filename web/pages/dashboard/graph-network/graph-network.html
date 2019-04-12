@@ -40,7 +40,7 @@
         marker-end="url(#c-graph-network__curve-arrow)"
         data-source-id="{edge.source.id}"
         data-target-id="{edge.target.id}"
-        class:selected="{edge.selected}"
+        class:is-selected="{edge.selected}"
         on:click="{onEdgeClick(edge)}"
       ></path>
       {:else}
@@ -52,7 +52,7 @@
         marker-end="url(#c-graph-network__arrow)"
         data-source-id="{edge.source.id}"
         data-target-id="{edge.target.id}"
-        class:selected="{edge.selected}"
+        class:is-selected="{edge.selected}"
         on:click="{onEdgeClick(edge)}"
       ></line>
       {/if} {/each}
@@ -68,7 +68,7 @@
           cx="{node.x}"
           cy="{node.y}"
           r="{radius}"
-          class:selected="{node.selected}"
+          class:is-selected="{node.selected}"
         ></circle>
         <text
           x="{node.x}"
@@ -102,7 +102,7 @@
     fill: black;
   }
 
-  .c-graph-network__nodes .selected {
+  .c-graph-network__nodes .is-selected {
     stroke: orange;
   }
 
@@ -113,7 +113,7 @@
     fill: transparent;
   }
 
-  .c-graph-network__edges .selected {
+  .c-graph-network__edges .is-selected {
     stroke: orange;
   }
 </style>
@@ -361,6 +361,6 @@
   }
 
   export function update() {
-    graph.nodes = graph.nodes
+    graph = graph
   }
 </script>

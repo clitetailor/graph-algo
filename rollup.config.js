@@ -16,6 +16,12 @@ if (dotenvResult.error) {
   process.exit(1)
 }
 
+process.env.NODE_ENV = process.env.NODE_ENV
+  ? process.env.NODE_ENV
+  : production
+  ? 'production'
+  : 'development'
+
 export default {
   input: path.resolve(__dirname, 'web/main.js'),
   output: {
@@ -34,7 +40,11 @@ export default {
     }),
     resolve(),
     replace({
-      ...getDotEnvConfig(['HERE_MAP_API', 'HERE_MAP_CODE'])
+      ...getDotEnvConfig([
+        'HERE_MAP_API',
+        'HERE_MAP_CODE',
+        'NODE_ENV'
+      ])
     }),
     commonjs(),
     production && terser(),
@@ -44,7 +54,10 @@ export default {
       'node_modules/material-design-lite/material.min.css':
         'public/material-design-lite/material.min.css',
       'node_modules/material-design-lite/material.min.js':
-        'public/material-design-lite/material.min.js'
+        'public/material-design-lite/material.min.js',
+      'node_modules/material-design-icons/iconfont':
+        'public/fonts',
+      'web/assets': 'public/'
     })
   ]
 }

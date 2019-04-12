@@ -1,274 +1,187 @@
-<div class="c-graph__layout">
-  <GraphNetwork
-    bind:this="{gn}"
-    bind:graph="{graph}"
-    bind:offsetX="{offsetX}"
-    bind:offsetY="{offsetY}"
-    bind:scale="{scale}"
-    onSvgMount="{onSvgMount}"
-    onSvgMouseDown="{onSvgMouseDown}"
-    onSvgMouseWheel="{onSvgMouseWheel}"
-    onSvgClick="{onSvgClick}"
-    onNodeClick="{onNodeClick}"
-    onNodeMouseDown="{onNodeMouseDown}"
-    onEdgeClick="{onEdgeClick}"
-  ></GraphNetwork>
+<div class="c-home">
+  <div class="c-home__left">
+    <header class="o-header">
+      {#if !comp}
+      <nav class="o-navbar">
+        <div class="o-navbar__item">
+          <a on:click="{() => page('/login')}">Login</a>
+        </div>
+        <div class="o-navbar__item">
+          <a on:click="{() => page('/signup')}">Signup</a>
+        </div>
+      </nav>
+      {:else}
+      <nav class="o-navbar">
+        <div class="o-navbar__item">
+          <a on:click="{() => page('/')}">
+            <i class="material-icons">arrow_back</i>
+            Back
+          </a>
+        </div>
+      </nav>
+      {/if}
+    </header>
+
+    <main class="o-main">
+      {#if !comp}
+      <div class="o-main__title">
+        <h1>Graph Algo</h1>
+      </div>
+      <div class="o-main__getting-started">
+        <button on:click="{() => page('/signup')}">
+          Getting Started
+        </button>
+      </div>
+      {:else}
+      <svelte:component this="{comp}"></svelte:component>
+      {/if}
+    </main>
+  </div>
+
+  <div class="c-home__right"></div>
 </div>
 
-<svelte:window
-  on:keydown="{onWindowKeyDown}"
-  on:mouseup="{onWindowMouseUp}"
-  on:mousemove="{onWindowMouseMove}"
-></svelte:window>
-
 <style>
-  .c-graph__layout {
-    width: 100%;
+  .c-home {
     height: 100%;
-    padding: 20px;
+    display: flex;
+    flex-flow: row nowrap;
+  }
+
+  .c-home__left {
+    flex: 1;
+    padding: 80px;
+  }
+
+  .c-home__right {
+    flex: 1;
+  }
+
+  .o-navbar {
+    margin-left: -60px;
+    display: flex;
+  }
+
+  .o-navbar__item {
+    position: relative;
+    margin-left: 60px;
+    font-size: 20px;
+  }
+
+  .o-navbar__item i {
+    margin-right: 10px;
+    font-size: 20px !important;
+    transform: translateY(2px);
+  }
+
+  .o-navbar__item::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 100%;
+    bottom: -3px;
+    height: 2px;
+    background: black;
+    transition: right 0.2s;
+  }
+
+  .o-navbar__item:hover::after {
+    right: 0;
+  }
+
+  .o-main {
+    height: 100%;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+  }
+
+  .o-main__title {
+    margin-top: -100px;
+    font-size: 28px;
+  }
+
+  .o-main__getting-started button {
+    padding: 16px 28px;
+    color: white;
+    font-size: 18px;
+    /* background: orange; */
+    background: black;
+    border: none;
+    /* border-radius: 29px; */
+    border-radius: 0;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .o-main :global(.o-form__title) {
+    margin-top: -100px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 24px;
+  }
+
+  .o-main :global(.o-input__field) {
+    margin-bottom: 20px;
+  }
+
+  .o-main :global(.o-input__field label) {
+    margin-bottom: 5px;
+    display: block;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+    text-transform: capitalize;
+  }
+
+  .o-main :global(.o-input__field input) {
+    padding: 8px;
+    width: 400px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+    border: 2px solid black;
+    border-radius: 0;
+  }
+  
+  /*
+  .o-main :global(.o-button__groups) {
+    width: 400px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  */
+  
+  .o-main :global(.o-button__groups button) {
+    margin-top: 0.83em;
+    padding: 10px 18px;
+    color: white;
+    font-size: 18px;
+    /* background: orange; */
+    background: black;
+    border: none;
+    /* border-radius: 29px; */
+    border-radius: 0;
+    outline: none;
+    cursor: pointer;
   }
 </style>
 
 <script>
-  import { onMount } from 'svelte'
+  import { fade } from 'svelte/transition'
 
-  import GraphNetwork from './graph-network/graph-network.html'
+  import { usePage } from '../../utils/page'
 
-  let gn
-  let graph = {
-    nodes: [],
-    edges: []
-  }
+  import Login from './login.html'
+  import Signup from './signup.html'
 
-  const ModeType = {
-    SELECT_MODE: 'SELECT_MODE',
-    MOVE_MODE: 'MOVE_MODE',
-    NODE_MODE: 'NODE_MODE',
-    LINE_MODE: 'LINE_MODE'
-  }
+  const page = usePage()
 
-  export let mode = ModeType.NODE_MODE
-  let currentMode = mode
-  let isModeLocked = false
-
-  let offsetX = 0
-  let offsetY = 0
-  let scale = 1
-
-  let isSvgDragging = false
-  let isNodeDragging = false
-  let draggingNode
-
-  function getMouseCoordinates(event) {
-    const rect = gn.getBoundingClientRect()
-
-    let x = (event.clientX - rect.left - offsetX) / scale
-    let y = (event.clientY - rect.top - offsetY) / scale
-
-    return {
-      x,
-      y
-    }
-  }
-
-  function onSvgMount() {
-    offsetX = gn.getWidth() / 2
-    offsetY = gn.getHeight() / 2
-  }
-
-  function setMode(event) {
-    if (isModeLocked) {
-      return
-    }
-
-    if (isSelectMode(event)) {
-      mode = ModeType.SELECT_MODE
-    }
-
-    if (isMoveMode(event)) {
-      mode = ModeType.MOVE_MODE
-    }
-
-    if (isNodeMode(event)) {
-      mode = ModeType.NODE_MODE
-    }
-
-    if (isLineMode(event)) {
-      mode = ModeType.LINE_MODE
-    }
-
-    gn.clearSelections()
-
-    currentMode = mode
-  }
-
-  function isSelectMode(event) {
-    return event.key === 's' && !event.altKey && !event.ctrlKey
-  }
-
-  function isMoveMode(event) {
-    return event.key === 'm' && !event.altKey && !event.ctrlKey
-  }
-
-  function isNodeMode(event) {
-    return event.key === 'n' && !event.altKey && !event.ctrlKey
-  }
-
-  function isLineMode(event) {
-    return event.key === 'l' && !event.altKey && !event.ctrlKey
-  }
-
-  function onSvgMouseDown(event) {
-    if (mode === ModeType.MOVE_MODE) {
-      onSvgDragStart(event)
-    }
-  }
-
-  function onWindowMouseMove(event) {
-    if (mode === ModeType.MOVE_MODE && isSvgDragging) {
-      onSvgDrag(event)
-    }
-
-    if (mode === ModeType.MOVE_MODE && isNodeDragging) {
-      onNodeDrag(event)
-    }
-  }
-
-  function onSvgMouseWheel(event) {
-    const wheelDelta = -event.wheelDelta
-
-    let newScale = scale - wheelDelta / 5000
-    if (newScale > 0 && newScale < 2) {
-      scale = newScale
-    }
-  }
-
-  function onSvgClick(event) {
-    switch (mode) {
-      case ModeType.NODE_MODE:
-        if (!event.altKey) {
-          const mouseCoordinates = getMouseCoordinates(event)
-
-          gn.createNodeAt(
-            mouseCoordinates.x,
-            mouseCoordinates.y
-          )
-        }
-        break
-    }
-  }
-
-  function onNodeClick(node) {
-    return event => {
-      switch (mode) {
-        case ModeType.SELECT_MODE:
-          if (!node.selected) {
-            gn.selectNode(node)
-          } else {
-            gn.deselectNode(node)
-          }
-          break
-
-        case ModeType.NODE_MODE:
-          if (event.altKey) {
-            gn.removeNode(node)
-          }
-          break
-
-        case ModeType.LINE_MODE:
-          const nodes = gn.getSelectedNodes()
-
-          if (nodes.length === 0) {
-            gn.selectNode(node)
-          } else {
-            const lastSelectedNode = nodes[nodes.length - 1]
-            if (lastSelectedNode === node) {
-              gn.clearNodeSelections()
-            } else {
-              gn.createEdge(lastSelectedNode, node)
-              gn.clearNodeSelections()
-            }
-          }
-      }
-    }
-  }
-
-  function onNodeMouseDown(node) {
-    return event => {
-      onNodeDragStart(node)(event)
-    }
-  }
-
-  function onNodeDragStart(node) {
-    return event => {
-      if (mode === ModeType.MOVE_MODE) {
-        event.stopPropagation()
-        isNodeDragging = true
-        draggingNode = node
-
-        isModeLocked = true
-      }
-    }
-  }
-
-  function onNodeDrag(event) {
-    gn.restartSimulation(0.6)
-
-    const mouseCoordinates = getMouseCoordinates(event)
-
-    draggingNode.fx = mouseCoordinates.x
-    draggingNode.fy = mouseCoordinates.y
-  }
-
-  function onEdgeClick(edge) {
-    return event => {
-      switch (mode) {
-        case ModeType.LINE_MODE:
-          if (event.altKey) {
-            gn.removeEdge(edge)
-          }
-          break
-      }
-    }
-  }
-
-  function onWindowKeyDown(event) {
-    setMode(event)
-  }
-
-  function onWindowMouseUp(event) {
-    if (mode === ModeType.MOVE_MODE) {
-      if (isSvgDragging) {
-        onSvgDragEnd(event)
-      }
-
-      if (isNodeDragging) {
-        onNodeDragEnd(event)
-      }
-    }
-  }
-
-  function onSvgDragStart(event) {
-    isSvgDragging = true
-    isModeLocked = true
-  }
-
-  function onSvgDrag(event) {
-    offsetX = offsetX + event.movementX
-    offsetY = offsetY + event.movementY
-  }
-
-  function onSvgDragEnd(event) {
-    isSvgDragging = false
-    isModeLocked = false
-  }
-
-  function onNodeDragEnd(event) {
-    draggingNode.fx = null
-    draggingNode.fy = null
-    draggingNode = null
-
-    isNodeDragging = false
-    isModeLocked = false
-  }
+  let comp
+  page('/', (ctx, next) => {
+    comp = undefined
+  })
+  page('/login', (ctx, next) => {
+    comp = Login
+  })
+  page('/signup', (ctx, next) => {
+    comp = Signup
+  })
 </script>
