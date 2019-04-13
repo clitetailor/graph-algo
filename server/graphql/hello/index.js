@@ -1,10 +1,24 @@
 const { typeDefs } = require('./types')
 
+const timeout = time =>
+  new Promise(resolve => setTimeout(() => resolve(true), time))
+
 const resolvers = {
   Query: {
     hello: () => {
       return {
         text: 'Hello, World!'
+      }
+    }
+  },
+
+  Subscription: {
+    hello: {
+      subscribe: async function*() {
+        await timeout(1000)
+        yield { hello: 'Hello, World!' }
+        await timeout(2000)
+        yield { hello: 'Good Morning' }
       }
     }
   }

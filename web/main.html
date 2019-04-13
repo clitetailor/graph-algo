@@ -2,13 +2,18 @@
 
 <script>
   import { usePage } from './utils/page'
+  import { client } from './graphql/client'
 
   import Home from './pages/index/index.html'
+  import Dashboard from './pages/dashboard/dashboard.html'
 
   const page = usePage()
   let comp = Home
 
   page('/', () => {
     comp = Home
+  })
+  page('/dashboard', () => {
+    comp = Dashboard
   })
 </script>

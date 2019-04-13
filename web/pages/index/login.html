@@ -1,14 +1,25 @@
-<form action="#" class="o-form">
+<form class="o-form" on:submit="{onSubmit}">
   <div class="o-form__title">
     <h2>Login</h2>
   </div>
   <div class="o-input__field">
     <label for="username">Username</label>
-    <input type="text" name="username" />
+    <input
+      type="text"
+      name="username"
+      bind:value="{username}"
+    />
   </div>
   <div class="o-input__field">
     <label for="password">Password</label>
-    <input type="password" name="password" />
+    <input
+      type="password"
+      name="password"
+      bind:value="{password}"
+    />
+  </div>
+  <div class="o-error__message">
+    {errMsg}
   </div>
   <div class="o-button__groups">
     <button class="o-button">
@@ -16,3 +27,30 @@
     </button>
   </div>
 </form>
+
+<script>
+  import { usePage } from '../../utils/page'
+  import { login } from '../../graphql/auth'
+
+  const page = usePage()
+
+  let username = ''
+  let password = ''
+
+  let errMsg = ''
+
+  async function onSubmit(event) {
+    event.preventDefault()
+
+    try {
+      await login(username, password)
+      page('/dashboard')
+    } catch (error) {
+      if (error.graphQLErrors) {
+        errMsg = error.graphQLErrors[0].message
+      } else {
+        errMsg = error.message
+      }
+    }
+  }
+</script>

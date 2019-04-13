@@ -1,6 +1,7 @@
 const { AuthenticationError } = require('apollo-server')
 
 const { generateAuthToken } = require('../../auth')
+const { typeDefs } = require('./types')
 
 const resolvers = {
   Mutation: {
@@ -30,6 +31,14 @@ const resolvers = {
       const { User } = context
       const { username, password } = args
 
+      if (username.match(/^\s*$/)) {
+        return new AuthenticationError('Username is required')
+      }
+
+      if (password.match(/^\s*$/)) {
+        return new AuthenticationError('Password is required')
+      }
+
       const [user, created] = await User.findOrCreate({
         where: { username },
         defaults: {
@@ -48,6 +57,18 @@ const resolvers = {
 
       return {
         token
+      }
+    },
+
+    checkAuth: async (root, args, context) => {
+      if (context.userId) {
+        return {
+          ok: true
+        }
+      } else {
+        return {
+          ok: false
+        }
       }
     }
   }

@@ -1,0 +1,37 @@
+{#if canLoad}
+<div class="c-dashboard">
+  <h1 on:click="{triggerLogout}">Hello, Dashboard!</h1>
+</div>
+
+<style>
+  .c-dashboard {
+    padding: 1px;
+    display: block;
+  }
+</style>
+{/if}
+
+<script>
+  import { onMount } from 'svelte'
+
+  import { usePage, requireAuth } from '../../utils/page'
+  import { logout } from '../../graphql/auth'
+
+  const page = usePage()
+  let canLoad = false
+
+  requireAuth(
+    true,
+    () => {
+      canLoad = true
+    },
+    () => {
+      page('/')
+    }
+  )
+
+  function triggerLogout() {
+    logout()
+    page('/')
+  }
+</script>

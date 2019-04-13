@@ -1,3 +1,4 @@
+const { AuthenticationError } = require('apollo-server')
 const util = require('util')
 const jwt = require('jsonwebtoken')
 
@@ -11,7 +12,7 @@ function generateAuthToken({ userId }) {
   )
 }
 
-async function contractAuthToken(token) {
+async function decodeAuthToken(token) {
   const { userId, iat } = await util.promisify(jwt.verify)(
     token,
     process.env.APP_SECRET_KEY,
@@ -23,7 +24,17 @@ async function contractAuthToken(token) {
   return { userId, iat }
 }
 
+async function requireAuth(callback) {
+  return (root, args, context, ...rest) => {
+    if (!context.userId) {
+      return new AuthenticationError('Unauthorization')
+    }
+
+    return callback(root, args, context, ...rest)
+  }
+}
+
 module.exports = {
   generateAuthToken,
-  contractAuthToken
+  decodeAuthToken
 }

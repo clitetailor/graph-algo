@@ -1,5 +1,6 @@
-import { client } from './client'
 import gql from 'graphql-tag'
+
+import { client } from './client'
 
 export async function signup(username, password) {
   const payload = await client.mutate({
@@ -16,7 +17,7 @@ export async function signup(username, password) {
     }
   })
 
-  localStorage.setItem('token', payload.token)
+  localStorage.setItem('token', payload.data.signup.token)
   await client.resetStore()
 
   return payload
@@ -37,8 +38,24 @@ export async function login(username, password) {
     }
   })
 
-  localStorage.setItem('token', payload.token)
+  localStorage.setItem('token', payload.data.login.token)
   await client.resetStore()
 
   return payload
+}
+
+export function checkAuth() {
+  return client.mutate({
+    mutation: gql`
+      mutation CheckAuth {
+        checkAuth {
+          ok
+        }
+      }
+    `
+  })
+}
+
+export function logout() {
+  localStorage.removeItem('token')
 }

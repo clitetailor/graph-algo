@@ -1,3 +1,4 @@
+{#if canLoad}
 <div class="c-home">
   <div class="c-home__left">
     <header class="o-header">
@@ -40,6 +41,7 @@
 
   <div class="c-home__right"></div>
 </div>
+{/if}
 
 <style>
   .c-home {
@@ -55,6 +57,7 @@
 
   .c-home__right {
     flex: 1;
+    background: linear-gradient(60deg, orange, orangered);
   }
 
   .o-navbar {
@@ -97,7 +100,7 @@
   }
 
   .o-main__title {
-    margin-top: -100px;
+    margin-top: -114px;
     font-size: 28px;
   }
 
@@ -140,7 +143,7 @@
     border: 2px solid black;
     border-radius: 0;
   }
-  
+
   /*
   .o-main :global(.o-button__groups) {
     width: 400px;
@@ -148,7 +151,7 @@
     justify-content: flex-end;
   }
   */
-  
+
   .o-main :global(.o-button__groups button) {
     margin-top: 0.83em;
     padding: 10px 18px;
@@ -162,12 +165,19 @@
     outline: none;
     cursor: pointer;
   }
+
+  .o-main :global(.o-error__message) {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+    color: red;
+  }
 </style>
 
 <script>
+  import { onMount } from 'svelte'
   import { fade } from 'svelte/transition'
 
-  import { usePage } from '../../utils/page'
+  import { usePage, requireAuth } from '../../utils/page'
 
   import Login from './login.html'
   import Signup from './signup.html'
@@ -175,6 +185,9 @@
   const page = usePage()
 
   let comp
+
+  let canLoad = false
+
   page('/', (ctx, next) => {
     comp = undefined
   })
@@ -184,4 +197,14 @@
   page('/signup', (ctx, next) => {
     comp = Signup
   })
+
+  requireAuth(
+    false,
+    () => {
+      canLoad = true
+    },
+    () => {
+      page('/dashboard')
+    }
+  )
 </script>
