@@ -1,10 +1,14 @@
 const typeDefs = /* GraphQL */ `
   type Node {
     id: ID
+    x: Float
+    y: Float
   }
 
   input NodeInput {
     id: ID
+    x: Float
+    y: Float
   }
 
   type Edge {

@@ -41,8 +41,6 @@ async function onConnect(connectionParams) {
     }
   }
 
-  console.log(userId)
-
   return {
     userId
   }

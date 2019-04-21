@@ -1,4 +1,4 @@
-const { ApolloError } = require('apollo-server')
+const { ApolloError, withFilter } = require('apollo-server')
 
 const { typeDefs } = require('./types')
 const { pubsub } = require('../pubsub')
@@ -163,21 +163,50 @@ const resolvers = {
 
   Subscription: {
     graphAdded: {
-      subscribe: () => {
-        return pubsub.asyncIterator(GraphAction.GRAPH_ADDED)
-      }
+      subscribe: requireAuth(
+        withFilter(
+          () => {
+            return pubsub.asyncIterator(GraphAction.GRAPH_ADDED)
+          },
+          (payload, args, context) => {
+            return payload.graphAdded.userId === context.userId
+          }
+        )
+      )
     },
 
     graphUpdated: {
-      subscribe: () => {
-        return pubsub.asyncIterator(GraphAction.GRAPH_UPDATED)
-      }
+      subscribe: requireAuth(
+        withFilter(
+          () => {
+            return pubsub.asyncIterator(
+              GraphAction.GRAPH_UPDATED
+            )
+          },
+          (payload, args, context) => {
+            return (
+              payload.graphUpdated.userId === context.userId
+            )
+          }
+        )
+      )
     },
 
     graphRemoved: {
-      subscribe: () => {
-        return pubsub.asyncIterator(GraphAction.GRAPH_REMOVED)
-      }
+      subscribe: requireAuth(
+        withFilter(
+          () => {
+            return pubsub.asyncIterator(
+              GraphAction.GRAPH_REMOVED
+            )
+          },
+          (payload, args, context) => {
+            return (
+              payload.graphRemoved.userId === context.userId
+            )
+          }
+        )
+      )
     }
   }
 }

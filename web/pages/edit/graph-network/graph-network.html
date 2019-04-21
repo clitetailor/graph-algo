@@ -62,7 +62,7 @@
   </defs>
   <g transform="translate({offsetX}, {offsetY}) scale({scale})">
     <g class="c-graph-network__edges">
-      {#each graph.edges as edge (edge.id)} {#if edge.bidirect}
+      {#each graph.edges as edge} {#if edge.bidirect}
       <path
         d="{curve(edge)}"
         marker-end="url(#c-graph-network__curve-arrow{isMarkerSelected(edge)})"
@@ -83,7 +83,7 @@
       {/if} {/each}
     </g>
     <g class="c-graph-network__nodes">
-      {#each graph.nodes as node (node.id)}
+      {#each graph.nodes as node}
       <g
         data-node-id="{node.id}"
         class:is-selected="{node.selected}"
@@ -215,6 +215,36 @@
 
     onSvgMount()
   })
+
+  export function setNodes(nodes) {
+    for (const node of nodes) {
+      node.count = 0
+    }
+
+    graph.nodes = nodes
+    graph.edges = []
+    resetNodeCounter()
+  }
+
+  export function setEdges(edges) {
+    for (const edge of edges) {
+      edge.source.count += 1
+      edge.target.count += 1
+
+      const reverseEdge = graph.edges.find(
+        e =>
+          e.target.id === edge.source.id &&
+          e.source.id === edge.target.id
+      )
+
+      if (reverseEdge) {
+        reverseEdge.bidirect = true
+        edge.bidirect = true
+      }
+    }
+
+    graph.edges = edges
+  }
 
   export function restartSimulation(alpha = 1) {
     simulation.nodes(graph.nodes)

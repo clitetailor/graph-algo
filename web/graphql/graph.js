@@ -29,6 +29,8 @@ export async function loadGraph(id) {
           title
           nodes {
             id
+            x
+            y
           }
           edges {
             sourceId

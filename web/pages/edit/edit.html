@@ -1,3 +1,4 @@
+{#if canLoad}
 <div class="c-edit">
   <div class="c-edit__left o-left">
     <div class="o-left__header o-header">
@@ -10,12 +11,15 @@
         <div class="o-navbar__item">
           <button on:click="{onSaveButtonClick}">Save</button>
         </div>
+        <div class="o-navbar__item">
+          <button on:click="{() => page('/dashboard')}">Back</button>
+        </div>
       </div>
     </div>
     <div class="o-left__main o-main">
       <div
         class="o-main__toolbar o-toolbar"
-        bind:this="{toolbar}"
+        use:loadToolbarImages
       >
         {#each toolbarItems as item}
         <div
@@ -66,6 +70,7 @@
     </div>
   </div>
 </div>
+{/if}
 
 <svelte:window
   on:keydown="{onWindowKeyDown}"
@@ -284,6 +289,9 @@
     updateSearchParams,
     getSearchParams
   } from '../../utils/location'
+  import { requireAuth, usePage } from '../../utils/page'
+
+  let canLoad = false
 
   let gn
   let graphId
@@ -326,7 +334,6 @@
   let isNodeDragging = false
   let draggingNode
 
-  let toolbar
   let toolbarItems = [
     {
       src: '/images/edit/select-mode.svg',
@@ -379,12 +386,23 @@
     }
   ]
 
+  const page = usePage()
+
+  requireAuth(
+    true,
+    () => {
+      canLoad = true
+    },
+    () => {
+      page('/')
+    }
+  )
+
   onMount(() => {
-    loadToolbarImages()
     loadGraphIfExists()
   })
 
-  function loadToolbarImages() {
+  function loadToolbarImages(toolbar) {
     const toolbarItemEls = toolbar.querySelectorAll(
       '[data-src]'
     )
@@ -410,25 +428,27 @@
 
       const data = await loadGraph(graphId)
 
-      graph.nodes = data.nodes.map(node => {
+      const nodes = data.nodes.map(node => {
         return {
           id: parseInt(node.id),
-          x: (Math.random() - 0.5) * 1000,
-          y: (Math.random() - 0.5) * 1000
+          x: node.x,
+          y: node.y
         }
       })
-      graph.edges = data.edges.map(edge => {
+      const edges = data.edges.map(edge => {
         return {
-          source: graph.nodes.find(
+          source: nodes.find(
             node => node.id === parseInt(edge.sourceId)
           ),
-          target: graph.nodes.find(
+          target: nodes.find(
             node => node.id === parseInt(edge.targetId)
           )
         }
       })
 
-      gn.resetNodeCounter()
+      gn.setNodes(nodes)
+      gn.setEdges(edges)
+
       gn.restartSimulation()
     }
   }
@@ -667,9 +687,11 @@
       try {
         const graphInput = {
           title,
-          nodes: graph.nodes.map(node => {
+          nodes: graph.nodes.map(({ id, x, y }) => {
             return {
-              id: node.id
+              id,
+              x,
+              y
             }
           }),
           edges: graph.edges.map(({ source, target }) => {
@@ -693,9 +715,11 @@
       try {
         const graphInput = {
           title,
-          nodes: graph.nodes.map(node => {
+          nodes: graph.nodes.map(({ id, x, y }) => {
             return {
-              id: node.id
+              id,
+              x,
+              y
             }
           }),
           edges: graph.edges.map(({ source, target }) => {

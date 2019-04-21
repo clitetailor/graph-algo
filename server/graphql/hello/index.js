@@ -15,8 +15,6 @@ const resolvers = {
   Subscription: {
     hello: {
       subscribe: async function*(root, args, context) {
-        console.log(context)
-
         await timeout(1000)
         yield { hello: 'Hello, World!' }
         await timeout(2000)
