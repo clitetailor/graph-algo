@@ -3,6 +3,7 @@ import resolve from 'rollup-plugin-node-resolve'
 import commonjs from 'rollup-plugin-commonjs'
 import replace from 'rollup-plugin-replace'
 import copy from 'rollup-plugin-copy'
+import json from 'rollup-plugin-json'
 import { terser } from 'rollup-plugin-terser'
 import path from 'path'
 import dotenv from 'dotenv'
@@ -38,14 +39,13 @@ export default {
         css.write(path.resolve(__dirname, 'public/bundle.css'))
       }
     }),
-    resolve(),
-    replace({
-      ...getDotEnvConfig([
-        'HERE_MAP_API',
-        'HERE_MAP_CODE',
-        'NODE_ENV'
-      ])
+    resolve({
+      browser: true
     }),
+    replace({
+      ...getDotEnvConfig(['NODE_ENV'])
+    }),
+    json(),
     commonjs(),
     production && terser(),
     copy({

@@ -24,7 +24,7 @@ async function decodeAuthToken(token) {
   return { userId, iat }
 }
 
-async function requireAuth(callback) {
+function requireAuth(callback) {
   return (root, args, context, ...rest) => {
     if (!context.userId) {
       return new AuthenticationError('Unauthorization')
@@ -36,5 +36,6 @@ async function requireAuth(callback) {
 
 module.exports = {
   generateAuthToken,
-  decodeAuthToken
+  decodeAuthToken,
+  requireAuth
 }

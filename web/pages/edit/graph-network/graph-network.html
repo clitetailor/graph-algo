@@ -12,7 +12,7 @@
     <marker
       id="c-graph-network__arrow"
       viewBox="0 0 10 10"
-      refX="{radius + 5}"
+      refX="10"
       refY="5"
       markerWidth="6"
       markerHeight="6"
@@ -21,9 +21,23 @@
       <path d="M 0 0 L 10 5 L 0 10 z" />
     </marker>
     <marker
+      id="c-graph-network__arrow--selected"
+      viewBox="0 0 10 10"
+      refX="10"
+      refY="5"
+      markerWidth="6"
+      markerHeight="6"
+      orient="auto-start-reverse"
+    >
+      <path
+        class="o-arrow is-selected"
+        d="M 0 0 L 10 5 L 0 10 z"
+      />
+    </marker>
+    <marker
       id="c-graph-network__curve-arrow"
       viewBox="0 0 10 10"
-      refX="{radius + 5}"
+      refX="10"
       refY="5"
       markerWidth="6"
       markerHeight="6"
@@ -31,36 +45,48 @@
     >
       <path d="M 0 0 L 10 5 L 0 10 z" />
     </marker>
+    <marker
+      id="c-graph-network__curve-arrow--selected"
+      viewBox="0 0 10 10"
+      refX="10"
+      refY="5"
+      markerWidth="6"
+      markerHeight="6"
+      orient="auto-start-reverse"
+    >
+      <path
+        class="o-arrow is-selected"
+        d="M 0 0 L 10 5 L 0 10 z"
+      />
+    </marker>
   </defs>
   <g transform="translate({offsetX}, {offsetY}) scale({scale})">
     <g class="c-graph-network__edges">
       {#each graph.edges as edge (edge.id)} {#if edge.bidirect}
       <path
         d="{curve(edge)}"
-        marker-end="url(#c-graph-network__curve-arrow)"
+        marker-end="url(#c-graph-network__curve-arrow{isMarkerSelected(edge)})"
         data-source-id="{edge.source.id}"
         data-target-id="{edge.target.id}"
         class:is-selected="{edge.selected}"
         on:click="{onEdgeClick(edge)}"
       ></path>
       {:else}
-      <line
-        x1="{edge.source.x}"
-        y1="{edge.source.y}"
-        x2="{edge.target.x}"
-        y2="{edge.target.y}"
-        marker-end="url(#c-graph-network__arrow)"
+      <path
+        d="{line(edge)}"
+        marker-end="url(#c-graph-network__arrow{isMarkerSelected(edge)})"
         data-source-id="{edge.source.id}"
         data-target-id="{edge.target.id}"
         class:is-selected="{edge.selected}"
         on:click="{onEdgeClick(edge)}"
-      ></line>
+      ></path>
       {/if} {/each}
     </g>
     <g class="c-graph-network__nodes">
       {#each graph.nodes as node (node.id)}
       <g
         data-node-id="{node.id}"
+        class:is-selected="{node.selected}"
         on:click="{onNodeClick(node)}"
         on:mousedown="{onNodeMouseDown(node)}"
       >
@@ -68,7 +94,6 @@
           cx="{node.x}"
           cy="{node.y}"
           r="{radius}"
-          class:is-selected="{node.selected}"
         ></circle>
         <text
           x="{node.x}"
@@ -92,9 +117,9 @@
   }
 
   .c-graph-network__nodes circle {
-    stroke: #333;
+    stroke: black;
     stroke-width: 2px;
-    fill: dodgerblue;
+    fill: white;
   }
 
   .c-graph-network__nodes text {
@@ -102,19 +127,36 @@
     fill: black;
   }
 
-  .c-graph-network__nodes .is-selected {
+  .c-graph-network__nodes .is-selected circle {
     stroke: orange;
+  }
+
+  .c-graph-network__nodes circle:hover {
+    cursor: pointer;
+  }
+
+  .c-graph-network__nodes .is-selected text {
+    fill: orange;
   }
 
   .c-graph-network__edges path,
   .c-graph-network__edges line {
-    stroke: #333;
+    stroke: black;
     stroke-width: 2px;
     fill: transparent;
   }
 
+  .c-graph-network__edges path:hover,
+  .c-graph-network__edges line:hover {
+    cursor: pointer;
+  }
+
   .c-graph-network__edges .is-selected {
     stroke: orange;
+  }
+
+  .o-arrow.is-selected {
+    fill: orange;
   }
 </style>
 
@@ -132,7 +174,7 @@
   let svg
   const radius = 20
 
-  let graph = {
+  export let graph = {
     nodes: [],
     edges: []
   }
@@ -181,6 +223,13 @@
     simulation.restart()
   }
 
+  export function resetNodeCounter() {
+    nodeCounter = graph.nodes.reduce(
+      (prev, node) => (node.id > prev ? node.id : prev),
+      0
+    )
+  }
+
   export function getWidth() {
     return svg.clientWidth
   }
@@ -189,32 +238,128 @@
     return svg.clientHeight
   }
 
-  function curve(edge) {
+  function normalize(vec) {
+    const dist = Math.sqrt(vec.x * vec.x + vec.y * vec.y)
+
+    return {
+      x: vec.x / dist,
+      y: vec.y / dist
+    }
+  }
+
+  function line(edge) {
+    const source = {}
+    const target = {}
+
+    const distVec = {
+      x: edge.target.x - edge.source.x,
+      y: edge.target.y - edge.source.y
+    }
+    const normVec = normalize(distVec)
+
+    source.x = edge.source.x + normVec.x * radius
+    source.y = edge.source.y + normVec.y * radius
+
+    target.x = edge.target.x - normVec.x * radius
+    target.y = edge.target.y - normVec.y * radius
+
     return `
-      M ${edge.source.x} ${edge.source.y}
-      Q
-        ${edge.source.x / 2 +
-          edge.target.x / 2 -
-          edge.source.y / 3 +
-          edge.target.y / 3}
-        ${edge.source.y / 2 +
-          edge.target.y / 2 -
-          edge.target.x / 3 +
-          edge.source.x / 3}
-        ${edge.target.x} ${edge.target.y}
+      M ${source.x} ${source.y}
+      L ${target.x} ${target.y}
     `
   }
 
-  function rotateVector(vector) {}
+  function rotate(vec, angle) {
+    const radian = (angle / 180) * Math.PI
+    return {
+      x: vec.x * Math.cos(radian) - vec.y * Math.sin(radian),
+      y: vec.x * Math.sin(radian) + vec.y * Math.cos(radian)
+    }
+  }
+
+  function mulitply(vec, number) {
+    return {
+      x: vec.x * number,
+      y: vec.y * number
+    }
+  }
+
+  function curve(edge) {
+    const source = {}
+    const mid = {}
+    const target = {}
+
+    const normVec = normalize({
+      x: edge.target.x - edge.source.x,
+      y: edge.target.y - edge.source.y
+    })
+
+    const multiplied = mulitply(normVec, radius)
+    const leftRadian = rotate(multiplied, 20)
+    const rightRadian = rotate(multiplied, 160)
+
+    source.x = edge.source.x + leftRadian.x
+    source.y = edge.source.y + leftRadian.y
+
+    target.x = edge.target.x + rightRadian.x
+    target.y = edge.target.y + rightRadian.y
+
+    const prepVec = rotate(mulitply(multiplied, 1.5), 90)
+
+    mid.x = (source.x + target.x) / 2 + prepVec.x
+    mid.y = (source.y + target.y) / 2 + prepVec.y
+
+    return `
+      M ${source.x} ${source.y}
+      Q
+        ${mid.x}
+        ${mid.y}
+        ${target.x} ${target.y}
+    `
+  }
+
+  function isNodeValid(node) {
+    return true
+    /*
+    (
+      node.x !== undefined &&
+      node.y !== undefined &&
+      !isNaN(node.x) &&
+      !isNaN(node.y)
+    )
+    */
+  }
+
+  function isEdgeValid(edge) {
+    return true
+    /*
+    (
+      edge.source &&
+      isNodeValid(edge.source) &&
+      edge.target &&
+      isNodeValid(edge.target)
+    )
+    */
+  }
+
+  function isMarkerSelected(edge) {
+    if (edge.selected) {
+      return '--selected'
+    }
+
+    return ''
+  }
 
   export function createNodeAt(x, y) {
     nodeCounter = nodeCounter + 1
     graph.nodes.push({
       id: nodeCounter,
+      count: 0,
       x,
       y
     })
     graph.nodes = graph.nodes
+
     restartSimulation()
   }
 
@@ -231,6 +376,9 @@
           e.source.id === targetNode.id &&
           e.target.id === sourceNode.id
       )
+
+      sourceNode.count += 1
+      targetNode.count += 1
 
       const edge = {
         id: `${sourceNode.id}-${targetNode.id}`,
@@ -257,19 +405,6 @@
     }
   }
 
-  export function deselectNode(node) {
-    if (node.selected) {
-      node.selected = false
-
-      const nodeIndex = selected.nodes.indexOf(node)
-      if (nodeIndex !== -1) {
-        selected.nodes.splice(nodeIndex, 1)
-      }
-
-      graph.nodes = graph.nodes
-    }
-  }
-
   export function getSelectedNodes() {
     return selected.nodes
   }
@@ -278,19 +413,6 @@
     edge.selected = true
     selected.edges.push(edge)
     graph.edges = graph.edges
-  }
-
-  export function deselectEdge(edge) {
-    if (edge.selected) {
-      edge.selected = false
-
-      const edgeIndex = selected.edges.indexOf(edge)
-      if (edgeIndex !== -1) {
-        selected.edges.splice(edgeIndex, 1)
-      }
-
-      graph.edges = graph.edges
-    }
   }
 
   export function getSelectedEdges() {

@@ -1,24 +1,150 @@
 {#if canLoad}
 <div class="c-dashboard">
-  <h1 on:click="{triggerLogout}">Hello, Dashboard!</h1>
+  <header class="c-dashboard__header o-header">
+    <div class="o-header__title">
+      <h1>Dashboard</h1>
+    </div>
+
+    <div class="o-header__spacing"></div>
+
+    <navbar class="o-header__navbar o-navbar">
+      <div class="o-navbar__item" on:click="{triggerLogout}">
+        <i class="material-icons">arrow_back</i>
+        <a>Logout</a>
+      </div>
+    </navbar>
+  </header>
+
+  <main class="c-dashboard__main o-main">
+    <div class="o-main__grid o-grid">
+      <div
+        class="o-grid__item o-card o-new-graph"
+        on:click="{() => page('/edit')}"
+      >
+        <div class="o-new-graph__add-button">
+          <i class="material-icons">add</i>
+        </div>
+        <div class="o-new-graph__title">
+          <span>Create a new Graph</span>
+        </div>
+      </div>
+    </div>
+  </main>
 </div>
+{/if}
 
 <style>
   .c-dashboard {
-    padding: 1px;
-    display: block;
+    padding: 80px;
+  }
+
+  .o-header {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+  }
+
+  .o-header__spacing {
+    flex: auto;
+  }
+
+  .o-navbar {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+  }
+
+  .o-navbar__account {
+    font-weight: bold;
+    margin-right: 20px;
+  }
+
+  .o-navbar {
+    margin-left: -60px;
+    display: flex;
+  }
+
+  .o-navbar__item {
+    position: relative;
+    margin-left: 60px;
+    font-size: 20px;
+  }
+
+  .o-navbar__item i {
+    margin-right: 10px;
+    font-size: 20px !important;
+    transform: translateY(2px);
+    cursor: pointer;
+  }
+
+  .o-navbar__item::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 100%;
+    bottom: -3px;
+    height: 2px;
+    background: black;
+    transition: right 0.2s;
+  }
+
+  .o-navbar__item:hover::after {
+    right: 0;
+  }
+
+  .o-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-gap: 30px;
+  }
+
+  .o-grid__item {
+    height: 180px;
+  }
+
+  .o-main {
+    margin-top: 80px;
+  }
+
+  .o-card {
+    border: 2px solid black;
+    cursor: pointer;
+  }
+
+  .o-card:hover {
+    background: linear-gradient(60deg, orange, orangered);
+    border: none;
+    color: white;
+  }
+
+  .o-new-graph {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .o-new-graph__add-button i {
+    margin-top: 10px;
+    font-size: 30px;
+  }
+
+  .o-new-graph__title {
+    font-size: 20px;
   }
 </style>
-{/if}
 
 <script>
   import { onMount } from 'svelte'
 
   import { usePage, requireAuth } from '../../utils/page'
   import { logout } from '../../graphql/auth'
+  import { getCurrentUser } from '../../graphql/user'
 
   const page = usePage()
-  let canLoad = false
+  let canLoad = true
+
+  let username = ''
 
   requireAuth(
     true,
@@ -29,6 +155,15 @@
       page('/')
     }
   )
+
+  onMount(async () => {
+    try {
+      const user = await getCurrentUser()
+      username = user.username
+    } catch (error) {
+      throw error
+    }
+  })
 
   function triggerLogout() {
     logout()

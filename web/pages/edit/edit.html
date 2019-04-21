@@ -1,0 +1,718 @@
+<div class="c-edit">
+  <div class="c-edit__left o-left">
+    <div class="o-left__header o-header">
+      <div class="o-header__logo"></div>
+      <div class="o-header__title">
+        <input type="text" bind:value="{title}" />
+      </div>
+      <div class="o-header__spacing"></div>
+      <div class="o-header__navbar o-navbar">
+        <div class="o-navbar__item">
+          <button on:click="{onSaveButtonClick}">Save</button>
+        </div>
+      </div>
+    </div>
+    <div class="o-left__main o-main">
+      <div
+        class="o-main__toolbar o-toolbar"
+        bind:this="{toolbar}"
+      >
+        {#each toolbarItems as item}
+        <div
+          class="o-toolbar__item"
+          class:selected="{item.mode === mode}"
+          on:click="{item.onClick}"
+        >
+          <abbr title="{item.alt}">
+            <div data-src="{item.src}"></div>
+          </abbr>
+        </div>
+        {/each}
+      </div>
+      <div class="o-main__content o-graph-network">
+        <GraphNetwork
+          bind:this="{gn}"
+          bind:graph="{graph}"
+          bind:offsetX="{offsetX}"
+          bind:offsetY="{offsetY}"
+          bind:scale="{scale}"
+          onSvgMount="{onSvgMount}"
+          onSvgMouseDown="{onSvgMouseDown}"
+          onSvgMouseWheel="{onSvgMouseWheel}"
+          onSvgClick="{onSvgClick}"
+          onNodeClick="{onNodeClick}"
+          onNodeMouseDown="{onNodeMouseDown}"
+          onEdgeClick="{onEdgeClick}"
+        ></GraphNetwork>
+      </div>
+    </div>
+  </div>
+
+  <div class="c-edit__right o-right">
+    <div class="o-right__sidebar o-sidebar">
+      <div class="o-sidebar__tabs">
+        {#each sidebarTabs as tab}
+        <div
+          class="o-sidebar__tab"
+          class:active="{tab.tab === currentTab}"
+          on:click="{tab.onClick}"
+        >
+          <span>{tab.title}</span>
+        </div>
+        {/each}
+      </div>
+
+      <div class="o-sidebar__main"></div>
+    </div>
+  </div>
+</div>
+
+<svelte:window
+  on:keydown="{onWindowKeyDown}"
+  on:mouseup="{onWindowMouseUp}"
+  on:mousemove="{onWindowMouseMove}"
+></svelte:window>
+
+<style>
+  .c-edit {
+    height: 100%;
+    display: flex;
+    flex-flow: row nowrap;
+  }
+
+  .c-edit__left {
+    flex: auto;
+  }
+
+  .c-edit__right {
+    flex: none;
+    height: 100%;
+  }
+
+  .o-right__sidebar {
+    width: 300px;
+    height: 100%;
+  }
+
+  .o-sidebar {
+    border-left: 1px solid hsl(0, 0%, 80%);
+  }
+
+  .o-toolbar {
+    width: 56px;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    background: white;
+    border-right: 1px solid hsl(0, 0%, 80%);
+  }
+
+  .o-left {
+    display: flex;
+    flex-flow: column nowrap;
+    height: 100%;
+  }
+
+  .o-left__header {
+    height: 56px;
+    border-bottom: 1px solid hsl(0, 0%, 80%);
+  }
+
+  .o-left__main {
+    flex: auto;
+  }
+
+  .o-main {
+    display: flex;
+    flex-flow: row nowrap;
+  }
+
+  .o-main__content {
+    flex: auto;
+  }
+
+  .o-graph-network {
+    background: hsl(0, 0%, 90%);
+    overflow: hidden;
+  }
+
+  .o-toolbar__item {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-right: 1px solid transparent;
+  }
+
+  .o-toolbar__item.selected {
+    background: hsl(39, 100%, 90%);
+    border-right: 1px solid orange;
+  }
+
+  .o-toolbar__item :global(path),
+  .o-toolbar__item :global(line) {
+    stroke-width: 2px !important;
+  }
+
+  .o-toolbar__item.selected :global(path),
+  .o-toolbar__item.selected :global(line) {
+    fill: orange;
+  }
+
+  .c-edit__main {
+    flex: 3;
+    overflow: hidden;
+  }
+
+  .c-edit__main :global(svg) {
+    background: hsl(0, 0%, 90%);
+  }
+
+  .c-edit__sidebar {
+    flex: 1;
+    border-left: 1px solid hsl(0, 0%, 80%);
+  }
+
+  .o-header {
+    display: flex;
+  }
+
+  .o-header__logo {
+    flex: 0 0 auto;
+    width: 56px;
+    border-right: 1px solid hsl(0, 0%, 80%);
+  }
+
+  .o-header__main {
+    flex: auto;
+    display: flex;
+    align-items: center;
+  }
+
+  .o-header__title {
+    display: flex;
+  }
+
+  .o-header__title input {
+    padding: 0px 32px;
+    width: 100%;
+    height: 100%;
+    background: none;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+    border: none;
+    outline: none;
+  }
+
+  .o-header__spacing {
+    flex: auto;
+  }
+
+  .o-header__navbar {
+    flex: 0;
+    padding: 0 32px;
+  }
+
+  .o-navbar {
+    margin-left: -16px;
+    display: flex;
+    align-items: center;
+  }
+
+  .o-navbar__item {
+    margin-left: 16px;
+  }
+
+  .o-navbar__item button {
+    padding: 8px 16px;
+    border-radius: 3px;
+    background: dodgerblue;
+    color: white;
+    border: none;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .o-sidebar {
+    display: flex;
+    flex-flow: column nowrap;
+  }
+
+  .o-sidebar__tabs {
+    height: 56px;
+    display: flex;
+    border-bottom: 1px solid hsl(0, 0%, 80%);
+  }
+
+  .o-sidebar__tab {
+    flex: 1 1 0;
+    height: 56px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    border-bottom: 1px solid transparent;
+    user-select: none;
+    cursor: pointer;
+  }
+
+  .o-sidebar__tab.active {
+    color: hsl(39, 100%, 50%);
+    background: hsl(39, 100%, 90%);
+    border-bottom: 1px solid hsl(39, 100%, 50%);
+  }
+</style>
+
+<script>
+  import { onMount } from 'svelte'
+
+  import GraphNetwork from './graph-network/graph-network.html'
+  import { loadSvgImage } from '../../ajax/image'
+  import {
+    createGraph,
+    removeGraph,
+    loadGraph,
+    updateGraph,
+    graphAdded,
+    graphRemoved,
+    graphUpdated
+  } from '../../graphql/graph'
+  import {
+    updateSearchParams,
+    getSearchParams
+  } from '../../utils/location'
+
+  let gn
+  let graphId
+  let graph = {
+    nodes: [],
+    edges: []
+  }
+
+  let title = 'Untitled'
+
+  const ModeType = {
+    SELECT_MODE: 'SELECT_MODE',
+    MOVE_MODE: 'MOVE_MODE',
+    NODE_MODE: 'NODE_MODE',
+    LINE_MODE: 'LINE_MODE'
+  }
+
+  export let mode = ModeType.SELECT_MODE
+  let currentMode = mode
+  let isModeLocked = false
+
+  const Tab = {
+    DETAIL: 'DETAIL',
+    ALGORITHM: 'ALGORITHM'
+  }
+
+  let currentTab = Tab.DETAIL
+
+  const DetailType = {
+    NODE: 'NODE',
+    LINE: 'LINE',
+    INFO: 'INFO'
+  }
+
+  let offsetX = 0
+  let offsetY = 0
+  let scale = 1
+
+  let isSvgDragging = false
+  let isNodeDragging = false
+  let draggingNode
+
+  let toolbar
+  let toolbarItems = [
+    {
+      src: '/images/edit/select-mode.svg',
+      alt: 'Select Mode',
+      mode: ModeType.SELECT_MODE,
+      onClick: () => {
+        setMode(ModeType.SELECT_MODE)
+      }
+    },
+    {
+      src: '/images/edit/move-mode.svg',
+      alt: 'Move Mode',
+      mode: ModeType.MOVE_MODE,
+      onClick: () => {
+        setMode(ModeType.MOVE_MODE)
+      }
+    },
+    {
+      src: '/images/edit/node-mode.svg',
+      alt: 'Node Mode',
+      mode: ModeType.NODE_MODE,
+      onClick: () => {
+        setMode(ModeType.NODE_MODE)
+      }
+    },
+    {
+      src: '/images/edit/line-mode.svg',
+      alt: 'Line Mode',
+      mode: ModeType.LINE_MODE,
+      onClick: () => {
+        setMode(ModeType.LINE_MODE)
+      }
+    }
+  ]
+
+  let sidebarTabs = [
+    {
+      title: 'Detail',
+      tab: Tab.DETAIL,
+      onClick: () => {
+        setTab(Tab.DETAIL)
+      }
+    },
+    {
+      title: 'Algorithm',
+      tab: Tab.ALGORITHM,
+      onClick: () => {
+        setTab(Tab.ALGORITHM)
+      }
+    }
+  ]
+
+  onMount(() => {
+    loadToolbarImages()
+    loadGraphIfExists()
+  })
+
+  function loadToolbarImages() {
+    const toolbarItemEls = toolbar.querySelectorAll(
+      '[data-src]'
+    )
+
+    for (let el of toolbarItemEls) {
+      ;(async () => {
+        await loadSvgImage(el)
+
+        const svgEl = el.querySelector('svg')
+
+        if (svgEl) {
+          svgEl.setAttribute('width', '24px')
+          svgEl.setAttribute('height', '24px')
+        }
+      })()
+    }
+  }
+
+  async function loadGraphIfExists() {
+    const searchParams = getSearchParams()
+    if (searchParams.id) {
+      graphId = searchParams.id
+
+      const data = await loadGraph(graphId)
+
+      graph.nodes = data.nodes.map(node => {
+        return {
+          id: parseInt(node.id),
+          x: (Math.random() - 0.5) * 1000,
+          y: (Math.random() - 0.5) * 1000
+        }
+      })
+      graph.edges = data.edges.map(edge => {
+        return {
+          source: graph.nodes.find(
+            node => node.id === parseInt(edge.sourceId)
+          ),
+          target: graph.nodes.find(
+            node => node.id === parseInt(edge.targetId)
+          )
+        }
+      })
+
+      gn.resetNodeCounter()
+      gn.restartSimulation()
+    }
+  }
+
+  function getMouseCoordinates(event) {
+    const rect = gn.getBoundingClientRect()
+
+    let x = (event.clientX - rect.left - offsetX) / scale
+    let y = (event.clientY - rect.top - offsetY) / scale
+
+    return {
+      x,
+      y
+    }
+  }
+
+  function onSvgMount() {
+    offsetX = gn.getWidth() / 2
+    offsetY = gn.getHeight() / 2
+  }
+
+  function onKeySetMode(event) {
+    if (isSelectMode(event)) {
+      setMode(ModeType.SELECT_MODE)
+    }
+
+    if (isMoveMode(event)) {
+      setMode(ModeType.MOVE_MODE)
+    }
+
+    if (isNodeMode(event)) {
+      setMode(ModeType.NODE_MODE)
+    }
+
+    if (isLineMode(event)) {
+      setMode(ModeType.LINE_MODE)
+    }
+  }
+
+  function setMode(newMode) {
+    if (isModeLocked) {
+      return
+    }
+
+    mode = newMode
+    gn.clearSelections()
+    currentMode = mode
+  }
+
+  function isSelectMode(event) {
+    return event.key === 's' && !event.altKey && !event.ctrlKey
+  }
+
+  function isMoveMode(event) {
+    return event.key === 'm' && !event.altKey && !event.ctrlKey
+  }
+
+  function isNodeMode(event) {
+    return event.key === 'n' && !event.altKey && !event.ctrlKey
+  }
+
+  function isLineMode(event) {
+    return event.key === 'l' && !event.altKey && !event.ctrlKey
+  }
+
+  function setTab(newTab) {
+    currentTab = newTab
+  }
+
+  function onSvgMouseDown(event) {
+    if (mode === ModeType.MOVE_MODE) {
+      onSvgDragStart(event)
+    }
+  }
+
+  function onWindowMouseMove(event) {
+    if (mode === ModeType.MOVE_MODE && isSvgDragging) {
+      onSvgDrag(event)
+    }
+
+    if (mode === ModeType.MOVE_MODE && isNodeDragging) {
+      onNodeDrag(event)
+    }
+  }
+
+  function onSvgMouseWheel(event) {
+    const wheelDelta = -event.wheelDelta
+
+    let newScale = scale - wheelDelta / 5000
+    if (newScale > 0 && newScale < 2) {
+      scale = newScale
+    }
+  }
+
+  function onSvgClick(event) {
+    switch (mode) {
+      case ModeType.NODE_MODE:
+        if (!event.altKey) {
+          const mouseCoordinates = getMouseCoordinates(event)
+
+          gn.createNodeAt(
+            mouseCoordinates.x,
+            mouseCoordinates.y
+          )
+        }
+        break
+    }
+  }
+
+  function onNodeClick(node) {
+    return event => {
+      switch (mode) {
+        case ModeType.SELECT_MODE:
+          if (!node.selected) {
+            gn.clearSelections()
+            gn.selectNode(node)
+          } else {
+            gn.clearSelections()
+          }
+          break
+
+        case ModeType.NODE_MODE:
+          if (event.altKey) {
+            gn.removeNode(node)
+          }
+          break
+
+        case ModeType.LINE_MODE:
+          const nodes = gn.getSelectedNodes()
+
+          if (nodes.length === 0) {
+            gn.selectNode(node)
+          } else {
+            const lastSelectedNode = nodes[nodes.length - 1]
+            if (lastSelectedNode === node) {
+              gn.clearNodeSelections()
+            } else {
+              gn.createEdge(lastSelectedNode, node)
+              gn.clearNodeSelections()
+            }
+          }
+      }
+    }
+  }
+
+  function onNodeMouseDown(node) {
+    return event => {
+      onNodeDragStart(node)(event)
+    }
+  }
+
+  function onNodeDragStart(node) {
+    return event => {
+      if (mode === ModeType.MOVE_MODE) {
+        event.stopPropagation()
+        isNodeDragging = true
+        draggingNode = node
+
+        isModeLocked = true
+      }
+    }
+  }
+
+  function onNodeDrag(event) {
+    gn.restartSimulation(0.6)
+
+    const mouseCoordinates = getMouseCoordinates(event)
+
+    draggingNode.fx = mouseCoordinates.x
+    draggingNode.fy = mouseCoordinates.y
+  }
+
+  function onEdgeClick(edge) {
+    return event => {
+      switch (mode) {
+        case ModeType.SELECT_MODE:
+          if (!edge.selected) {
+            gn.clearSelections()
+            gn.selectEdge(edge)
+          } else {
+            gn.clearSelections()
+          }
+          break
+
+        case ModeType.LINE_MODE:
+          if (event.altKey) {
+            gn.removeEdge(edge)
+          }
+          break
+      }
+    }
+  }
+
+  function onWindowKeyDown(event) {
+    onKeySetMode(event)
+  }
+
+  function onWindowMouseUp(event) {
+    if (mode === ModeType.MOVE_MODE) {
+      if (isSvgDragging) {
+        onSvgDragEnd(event)
+      }
+
+      if (isNodeDragging) {
+        onNodeDragEnd(event)
+      }
+    }
+  }
+
+  function onSvgDragStart(event) {
+    isSvgDragging = true
+    isModeLocked = true
+  }
+
+  function onSvgDrag(event) {
+    offsetX = offsetX + event.movementX
+    offsetY = offsetY + event.movementY
+  }
+
+  function onSvgDragEnd(event) {
+    isSvgDragging = false
+    isModeLocked = false
+  }
+
+  function onNodeDragEnd(event) {
+    draggingNode.fx = null
+    draggingNode.fy = null
+    draggingNode = null
+
+    isNodeDragging = false
+    isModeLocked = false
+  }
+
+  async function onSaveButtonClick() {
+    if (!graphId) {
+      try {
+        const graphInput = {
+          title,
+          nodes: graph.nodes.map(node => {
+            return {
+              id: node.id
+            }
+          }),
+          edges: graph.edges.map(({ source, target }) => {
+            return {
+              sourceId: source.id,
+              targetId: target.id
+            }
+          })
+        }
+
+        const createdGraph = await createGraph(graphInput)
+
+        graphId = createdGraph.id
+        updateSearchParams({
+          id: graphId
+        })
+      } catch (error) {
+        throw error
+      }
+    } else {
+      try {
+        const graphInput = {
+          title,
+          nodes: graph.nodes.map(node => {
+            return {
+              id: node.id
+            }
+          }),
+          edges: graph.edges.map(({ source, target }) => {
+            return {
+              sourceId: source.id,
+              targetId: target.id
+            }
+          })
+        }
+
+        const updatedGraph = await updateGraph(
+          graphId,
+          graphInput
+        )
+      } catch (error) {
+        throw error
+      }
+    }
+  }
+</script>

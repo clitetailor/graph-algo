@@ -4,6 +4,23 @@ const { generateAuthToken } = require('../../auth')
 const { typeDefs } = require('./types')
 
 const resolvers = {
+  Query: {
+    user: async (root, args, context) => {
+      const { User, userId } = context
+
+      const user = await User.findOne({
+        where: {
+          id: userId
+        }
+      })
+
+      if (!user)
+        return new AuthenticationError('Unauthorization')
+
+      return user
+    }
+  },
+
   Mutation: {
     login: async (root, args, context) => {
       const { User } = context

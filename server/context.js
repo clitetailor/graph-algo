@@ -1,5 +1,3 @@
-const { AuthenticationError } = require('apollo-server')
-
 const db = require('./database')
 const { decodeAuthToken } = require('./auth')
 
@@ -30,6 +28,27 @@ async function context({ req, connection }) {
   }
 }
 
+async function onConnect(connectionParams) {
+  let userId
+
+  const authToken = connectionParams.authToken
+
+  if (authToken) {
+    const data = await decodeAuthToken(authToken)
+
+    if (data.userId) {
+      userId = data.userId
+    }
+  }
+
+  console.log(userId)
+
+  return {
+    userId
+  }
+}
+
 module.exports = {
-  context
+  context,
+  onConnect
 }

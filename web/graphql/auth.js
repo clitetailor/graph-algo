@@ -20,7 +20,7 @@ export async function signup(username, password) {
   localStorage.setItem('token', payload.data.signup.token)
   await client.resetStore()
 
-  return payload
+  return payload.data.signup
 }
 
 export async function login(username, password) {
@@ -41,11 +41,11 @@ export async function login(username, password) {
   localStorage.setItem('token', payload.data.login.token)
   await client.resetStore()
 
-  return payload
+  return payload.data.login
 }
 
-export function checkAuth() {
-  return client.mutate({
+export async function checkAuth() {
+  const payload = await client.mutate({
     mutation: gql`
       mutation CheckAuth {
         checkAuth {
@@ -54,6 +54,8 @@ export function checkAuth() {
       }
     `
   })
+
+  return payload.data.checkAuth
 }
 
 export function logout() {

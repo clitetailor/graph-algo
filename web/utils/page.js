@@ -21,19 +21,37 @@ export function requireAuth(
   load,
   otherwise
 ) {
+  let destroyed = false
+
   onMount(async () => {
-    const payload = await checkAuth()
+    const result = await checkAuth()
 
-    if (authStatus && !payload.data.checkAuth.ok) {
-      if (otherwise) otherwise()
+    if (destroyed) {
       return
     }
 
-    if (!authStatus && payload.data.checkAuth.ok) {
-      if (otherwise) otherwise()
+    if (authStatus && !result.ok) {
+      if (otherwise) {
+        otherwise()
+      }
+
       return
     }
 
-    if (load) load()
+    if (!authStatus && result.ok) {
+      if (otherwise) {
+        otherwise()
+      }
+
+      return
+    }
+
+    if (load) {
+      load()
+    }
+  })
+
+  onDestroy(() => {
+    destroyed = true
   })
 }

@@ -8,17 +8,27 @@ export function createSimulation({ width, height, radius }) {
       'link',
       d3
         .forceLink()
-        .distance(200)
         .id(d => d.id)
+        .distance(edge => {
+          const length =
+            200 /
+            Math.pow(
+              Math.abs(edge.target.count - edge.source.count) +
+                1,
+              0.3
+            )
+
+          return Math.max(length, 100)
+        })
     )
     .force(
       'charge',
       d3
         .forceManyBody()
-        .strength(-400)
+        .strength(-200)
         .distanceMax(100)
     )
-    .force('collide', d3.forceCollide(radius))
+    .force('collide', d3.forceCollide(radius * 2))
 
   return simulation
 }

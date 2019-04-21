@@ -69,6 +69,7 @@
     position: relative;
     margin-left: 60px;
     font-size: 20px;
+    cursor: pointer;
   }
 
   .o-navbar__item i {
@@ -188,13 +189,13 @@
 
   let canLoad = false
 
-  page('/', (ctx, next) => {
+  page('/', () => {
     comp = undefined
   })
-  page('/login', (ctx, next) => {
+  page('/login', () => {
     comp = Login
   })
-  page('/signup', (ctx, next) => {
+  page('/signup', () => {
     comp = Signup
   })
 
