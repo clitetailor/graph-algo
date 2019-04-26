@@ -18,7 +18,9 @@ h5,
 h6,
 p,
 a,
-span {
+span,
+b,
+i {
   font-family: Arial, Helvetica, sans-serif;
 }
 

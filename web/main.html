@@ -3,21 +3,40 @@
 <script>
   import { usePage } from './utils/page'
   import { client } from './graphql/client'
+  import { checkAuth } from './graphql/auth'
 
   import Home from './pages/index/index.html'
   import Dashboard from './pages/dashboard/dashboard.html'
   import Edit from './pages/edit/edit.html'
 
   const page = usePage()
-  let comp = Home
+  let comp
 
-  page('/', () => {
-    comp = Home
+  page('/', async () => {
+    const authStatus = await checkAuth()
+
+    if (authStatus.ok) {
+      comp = Home
+    } else {
+      page('/dashboard')
+    }
   })
-  page('/dashboard', () => {
-    comp = Dashboard
+  page('/dashboard', async () => {
+    const authStatus = await checkAuth()
+
+    if (authStatus.ok) {
+      comp = Dashboard
+    } else {
+      page('/')
+    }
   })
-  page('/edit', () => {
-    comp = Edit
+  page('/edit', async () => {
+    const authStatus = await checkAuth()
+
+    if (authStatus.ok) {
+      comp = Edit
+    } else {
+      page('/')
+    }
   })
 </script>

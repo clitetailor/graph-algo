@@ -1,19 +1,18 @@
-{#if canLoad}
 <div class="c-home">
   <div class="c-home__left">
-    <header class="o-header">
+    <header class="c-header">
       {#if !comp}
-      <nav class="o-navbar">
-        <div class="o-navbar__item">
+      <nav class="c-navbar">
+        <div class="c-navbar__item">
           <a on:click="{() => page('/login')}">Login</a>
         </div>
-        <div class="o-navbar__item">
+        <div class="c-navbar__item">
           <a on:click="{() => page('/signup')}">Signup</a>
         </div>
       </nav>
       {:else}
-      <nav class="o-navbar">
-        <div class="o-navbar__item">
+      <nav class="c-navbar">
+        <div class="c-navbar__item">
           <a on:click="{() => page('/')}">
             <i class="material-icons">arrow_back</i>
             Back
@@ -23,12 +22,12 @@
       {/if}
     </header>
 
-    <main class="o-main">
+    <main class="c-main">
       {#if !comp}
-      <div class="o-main__title">
+      <div class="c-main__title">
         <h1>Graph Algo</h1>
       </div>
-      <div class="o-main__getting-started">
+      <div class="c-main__getting-started">
         <button on:click="{() => page('/signup')}">
           Getting Started
         </button>
@@ -41,7 +40,6 @@
 
   <div class="c-home__right"></div>
 </div>
-{/if}
 
 <style>
   .c-home {
@@ -60,25 +58,25 @@
     background: linear-gradient(60deg, orange, orangered);
   }
 
-  .o-navbar {
+  .c-navbar {
     margin-left: -60px;
     display: flex;
   }
 
-  .o-navbar__item {
+  .c-navbar__item {
     position: relative;
     margin-left: 60px;
     font-size: 20px;
     cursor: pointer;
   }
 
-  .o-navbar__item i {
+  .c-navbar__item i {
     margin-right: 10px;
     font-size: 20px !important;
     transform: translateY(2px);
   }
 
-  .o-navbar__item::after {
+  .c-navbar__item::after {
     content: '';
     position: absolute;
     left: 0;
@@ -89,23 +87,23 @@
     transition: right 0.2s;
   }
 
-  .o-navbar__item:hover::after {
+  .c-navbar__item:hover::after {
     right: 0;
   }
 
-  .o-main {
+  .c-main {
     height: 100%;
     display: flex;
     flex-flow: column nowrap;
     justify-content: center;
   }
 
-  .o-main__title {
+  .c-main__title {
     margin-top: -114px;
     font-size: 28px;
   }
 
-  .o-main__getting-started button {
+  .c-main__getting-started button {
     padding: 16px 28px;
     color: white;
     font-size: 18px;
@@ -118,17 +116,17 @@
     cursor: pointer;
   }
 
-  .o-main :global(.o-form__title) {
+  .c-main :global(.c-form__title) {
     margin-top: -100px;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 24px;
   }
 
-  .o-main :global(.o-input__field) {
+  .c-main :global(.c-input__field) {
     margin-bottom: 20px;
   }
 
-  .o-main :global(.o-input__field label) {
+  .c-main :global(.c-input__field label) {
     margin-bottom: 5px;
     display: block;
     font-family: Arial, Helvetica, sans-serif;
@@ -136,7 +134,7 @@
     text-transform: capitalize;
   }
 
-  .o-main :global(.o-input__field input) {
+  .c-main :global(.c-input__field input) {
     padding: 8px;
     width: 400px;
     font-family: Arial, Helvetica, sans-serif;
@@ -146,14 +144,14 @@
   }
 
   /*
-  .o-main :global(.o-button__groups) {
+  .c-main :global(.c-button__groups) {
     width: 400px;
     display: flex;
     justify-content: flex-end;
   }
   */
 
-  .o-main :global(.o-button__groups button) {
+  .c-main :global(.c-button__groups button) {
     margin-top: 0.83em;
     padding: 10px 18px;
     color: white;
@@ -167,7 +165,7 @@
     cursor: pointer;
   }
 
-  .o-main :global(.o-error__message) {
+  .c-main :global(.c-error__message) {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 18px;
     color: red;
@@ -187,8 +185,6 @@
 
   let comp
 
-  let canLoad = false
-
   page('/', () => {
     comp = undefined
   })
@@ -198,14 +194,4 @@
   page('/signup', () => {
     comp = Signup
   })
-
-  requireAuth(
-    false,
-    () => {
-      canLoad = true
-    },
-    () => {
-      page('/dashboard')
-    }
-  )
 </script>

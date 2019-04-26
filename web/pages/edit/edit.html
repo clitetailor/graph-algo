@@ -1,29 +1,30 @@
-{#if canLoad}
 <div class="c-edit">
-  <div class="c-edit__left o-left">
-    <div class="o-left__header o-header">
-      <div class="o-header__logo"></div>
-      <div class="o-header__title">
+  <div class="c-edit__left c-left">
+    <div class="c-left__header c-header">
+      <div class="c-header__logo"></div>
+      <div class="c-header__title">
         <input type="text" bind:value="{title}" />
       </div>
-      <div class="o-header__spacing"></div>
-      <div class="o-header__navbar o-navbar">
-        <div class="o-navbar__item">
+      <div class="c-header__spacing"></div>
+      <div class="c-header__navbar c-navbar">
+        <div class="c-navbar__item">
           <button on:click="{onSaveButtonClick}">Save</button>
         </div>
-        <div class="o-navbar__item">
-          <button on:click="{() => page('/dashboard')}">Back</button>
+        <div class="c-navbar__item">
+          <button on:click="{() => page('/dashboard')}">
+            Back
+          </button>
         </div>
       </div>
     </div>
-    <div class="o-left__main o-main">
+    <div class="c-left__main c-main">
       <div
-        class="o-main__toolbar o-toolbar"
-        use:loadToolbarImages
+        class="c-main__toolbar c-toolbar"
+        bind:this="{toolbar}"
       >
         {#each toolbarItems as item}
         <div
-          class="o-toolbar__item"
+          class="c-toolbar__item"
           class:selected="{item.mode === mode}"
           on:click="{item.onClick}"
         >
@@ -33,7 +34,7 @@
         </div>
         {/each}
       </div>
-      <div class="o-main__content o-graph-network">
+      <div class="c-main__content c-graph-network">
         <GraphNetwork
           bind:this="{gn}"
           bind:graph="{graph}"
@@ -52,12 +53,12 @@
     </div>
   </div>
 
-  <div class="c-edit__right o-right">
-    <div class="o-right__sidebar o-sidebar">
-      <div class="o-sidebar__tabs">
+  <div class="c-edit__right c-right">
+    <div class="c-right__sidebar c-sidebar">
+      <div class="c-sidebar__tabs">
         {#each sidebarTabs as tab}
         <div
-          class="o-sidebar__tab"
+          class="c-sidebar__tab"
           class:active="{tab.tab === currentTab}"
           on:click="{tab.onClick}"
         >
@@ -66,11 +67,10 @@
         {/each}
       </div>
 
-      <div class="o-sidebar__main"></div>
+      <div class="c-sidebar__main"></div>
     </div>
   </div>
 </div>
-{/if}
 
 <svelte:window
   on:keydown="{onWindowKeyDown}"
@@ -94,16 +94,16 @@
     height: 100%;
   }
 
-  .o-right__sidebar {
+  .c-right__sidebar {
     width: 300px;
     height: 100%;
   }
 
-  .o-sidebar {
+  .c-sidebar {
     border-left: 1px solid hsl(0, 0%, 80%);
   }
 
-  .o-toolbar {
+  .c-toolbar {
     width: 56px;
     top: 0;
     left: 0;
@@ -112,36 +112,36 @@
     border-right: 1px solid hsl(0, 0%, 80%);
   }
 
-  .o-left {
+  .c-left {
     display: flex;
     flex-flow: column nowrap;
     height: 100%;
   }
 
-  .o-left__header {
+  .c-left__header {
     height: 56px;
     border-bottom: 1px solid hsl(0, 0%, 80%);
   }
 
-  .o-left__main {
+  .c-left__main {
     flex: auto;
   }
 
-  .o-main {
+  .c-main {
     display: flex;
     flex-flow: row nowrap;
   }
 
-  .o-main__content {
+  .c-main__content {
     flex: auto;
   }
 
-  .o-graph-network {
+  .c-graph-network {
     background: hsl(0, 0%, 90%);
     overflow: hidden;
   }
 
-  .o-toolbar__item {
+  .c-toolbar__item {
     width: 56px;
     height: 56px;
     display: flex;
@@ -151,18 +151,18 @@
     border-right: 1px solid transparent;
   }
 
-  .o-toolbar__item.selected {
+  .c-toolbar__item.selected {
     background: hsl(39, 100%, 90%);
     border-right: 1px solid orange;
   }
 
-  .o-toolbar__item :global(path),
-  .o-toolbar__item :global(line) {
+  .c-toolbar__item :global(path),
+  .c-toolbar__item :global(line) {
     stroke-width: 2px !important;
   }
 
-  .o-toolbar__item.selected :global(path),
-  .o-toolbar__item.selected :global(line) {
+  .c-toolbar__item.selected :global(path),
+  .c-toolbar__item.selected :global(line) {
     fill: orange;
   }
 
@@ -180,27 +180,27 @@
     border-left: 1px solid hsl(0, 0%, 80%);
   }
 
-  .o-header {
+  .c-header {
     display: flex;
   }
 
-  .o-header__logo {
+  .c-header__logo {
     flex: 0 0 auto;
     width: 56px;
     border-right: 1px solid hsl(0, 0%, 80%);
   }
 
-  .o-header__main {
+  .c-header__main {
     flex: auto;
     display: flex;
     align-items: center;
   }
 
-  .o-header__title {
+  .c-header__title {
     display: flex;
   }
 
-  .o-header__title input {
+  .c-header__title input {
     padding: 0px 32px;
     width: 100%;
     height: 100%;
@@ -212,26 +212,26 @@
     outline: none;
   }
 
-  .o-header__spacing {
+  .c-header__spacing {
     flex: auto;
   }
 
-  .o-header__navbar {
+  .c-header__navbar {
     flex: 0;
     padding: 0 32px;
   }
 
-  .o-navbar {
+  .c-navbar {
     margin-left: -16px;
     display: flex;
     align-items: center;
   }
 
-  .o-navbar__item {
+  .c-navbar__item {
     margin-left: 16px;
   }
 
-  .o-navbar__item button {
+  .c-navbar__item button {
     padding: 8px 16px;
     border-radius: 3px;
     background: dodgerblue;
@@ -241,18 +241,18 @@
     cursor: pointer;
   }
 
-  .o-sidebar {
+  .c-sidebar {
     display: flex;
     flex-flow: column nowrap;
   }
 
-  .o-sidebar__tabs {
+  .c-sidebar__tabs {
     height: 56px;
     display: flex;
     border-bottom: 1px solid hsl(0, 0%, 80%);
   }
 
-  .o-sidebar__tab {
+  .c-sidebar__tab {
     flex: 1 1 0;
     height: 56px;
     display: flex;
@@ -264,7 +264,7 @@
     cursor: pointer;
   }
 
-  .o-sidebar__tab.active {
+  .c-sidebar__tab.active {
     color: hsl(39, 100%, 50%);
     background: hsl(39, 100%, 90%);
     border-bottom: 1px solid hsl(39, 100%, 50%);
@@ -291,8 +291,6 @@
   } from '../../utils/location'
   import { requireAuth, usePage } from '../../utils/page'
 
-  let canLoad = false
-
   let gn
   let graphId
   let graph = {
@@ -302,6 +300,7 @@
 
   let title = 'Untitled'
 
+  let toolbar
   const ModeType = {
     SELECT_MODE: 'SELECT_MODE',
     MOVE_MODE: 'MOVE_MODE',
@@ -388,26 +387,17 @@
 
   const page = usePage()
 
-  requireAuth(
-    true,
-    () => {
-      canLoad = true
-    },
-    () => {
-      page('/')
-    }
-  )
-
   onMount(() => {
     loadGraphIfExists()
+    loadToolbarImages()
   })
 
-  function loadToolbarImages(toolbar) {
+  function loadToolbarImages() {
     const toolbarItemEls = toolbar.querySelectorAll(
       '[data-src]'
     )
 
-    for (let el of toolbarItemEls) {
+    for (const el of toolbarItemEls) {
       ;(async () => {
         await loadSvgImage(el)
 

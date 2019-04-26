@@ -1,8 +1,8 @@
-<form action="#" class="o-form" on:submit="{onSubmit}">
-  <div class="o-form__title">
+<form action="#" class="c-form" on:submit="{onSubmit}">
+  <div class="c-form__title">
     <h2>Signup</h2>
   </div>
-  <div class="o-input__field">
+  <div class="c-input__field">
     <label for="username">Username</label>
     <input
       type="text"
@@ -10,7 +10,7 @@
       bind:value="{username}"
     />
   </div>
-  <div class="o-input__field">
+  <div class="c-input__field">
     <label for="password">Password</label>
     <input
       type="password"
@@ -18,7 +18,7 @@
       bind:value="{password}"
     />
   </div>
-  <div class="o-input__field">
+  <div class="c-input__field">
     <label for="confirm-password">Password Confirm</label>
     <input
       type="password"
@@ -26,11 +26,11 @@
       bind:value="{confirmPassword}"
     />
   </div>
-  <div class="o-error__message">
+  <div class="c-error__message">
     {errMsg}
   </div>
-  <div class="o-button__groups">
-    <button class="o-button">
+  <div class="c-button__groups">
+    <button class="c-button">
       Submit
     </button>
   </div>

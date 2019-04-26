@@ -7,7 +7,7 @@ export async function getGraphInfos() {
       query GetGraphInfos {
         graphInfos {
           id
-          useId
+          userId
           title
           nodeCount
           edgeCount

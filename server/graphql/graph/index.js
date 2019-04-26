@@ -17,6 +17,7 @@ const resolvers = {
 
       const graphs = await Graph.findAll({
         attributes: [
+          'id',
           'title',
           'userId',
           'nodeCount',
