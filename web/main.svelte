@@ -5,9 +5,9 @@
   import { client } from './graphql/client'
   import { checkAuth } from './graphql/auth'
 
-  import Home from './pages/index/index.html'
-  import Dashboard from './pages/dashboard/dashboard.html'
-  import Edit from './pages/edit/edit.html'
+  import Home from './pages/index/index.svelte'
+  import Dashboard from './pages/dashboard/dashboard.svelte'
+  import Edit from './pages/edit/edit.svelte'
 
   const page = usePage()
   let comp

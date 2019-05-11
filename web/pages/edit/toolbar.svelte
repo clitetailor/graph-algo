@@ -72,9 +72,9 @@
 </style>
 
 <script>
-  import SvgImg from '../shared/svg-img.html'
+  import SvgImg from '../shared/svg-img.svelte'
 
-  import { Mode } from './graph-network/graph-network.html'
+  import { Mode } from './graph-network/graph-network.svelte'
 
   let mode = Mode.SELECT
 

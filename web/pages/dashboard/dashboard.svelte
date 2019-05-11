@@ -41,7 +41,7 @@
 </style>
 
 <script>
-  import Navbar from './navbar.html'
-  import Create from './create.html'
-  import Recent from './recent.html'
+  import Navbar from './navbar.svelte'
+  import Create from './create.svelte'
+  import Recent from './recent.svelte'
 </script>

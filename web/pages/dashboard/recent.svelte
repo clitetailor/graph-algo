@@ -134,7 +134,7 @@
 <script>
   import { onMount, onDestroy } from 'svelte'
 
-  import SvgImg from '../shared/svg-img.html'
+  import SvgImg from '../shared/svg-img.svelte'
 
   import { GraphType } from '../../data/graph'
   import {

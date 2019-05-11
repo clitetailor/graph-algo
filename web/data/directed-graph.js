@@ -10,17 +10,36 @@ export class DirectedGraph {
     this.type = GraphType.DIRECTED_GRAPH
 
     this.nodeReservedAttributes = [
-      { type: 'string', name: 'id' },
-      { type: 'float', name: 'x' },
-      { type: 'float', name: 'y' },
-      { type: 'float', name: 'vx' },
-      { type: 'float', name: 'vy' },
-      { type: 'float', name: 'fx' },
-      { type: 'float', name: 'fy' },
-      { type: 'boolean', name: 'selected' },
-      { type: 'number', name: 'edgeCount' },
-      { type: 'number', name: 'outgoingEdgeCount' },
-      { type: 'number', name: 'incomingEdgeCount' }
+      { type: 'string', name: 'id', editable: false },
+      { type: 'string', name: 'title' },
+      { type: 'float', name: 'x', editable: false },
+      { type: 'float', name: 'y', editable: false },
+      { type: 'float', name: 'vx', editable: false },
+      { type: 'float', name: 'vy', editable: false },
+      {
+        type: 'float',
+        name: 'fx',
+        hidden: true,
+        editable: false
+      },
+      {
+        type: 'float',
+        name: 'fy',
+        hidden: true,
+        editable: false
+      },
+      { type: 'boolean', name: 'selected', editable: false },
+      { type: 'number', name: 'edgeCount', editable: false },
+      {
+        type: 'number',
+        name: 'outgoingEdgeCount',
+        editable: false
+      },
+      {
+        type: 'number',
+        name: 'incomingEdgeCount',
+        editable: false
+      }
     ]
     this.edgeReservedAttributes = [
       { type: 'string', name: 'id' },
@@ -84,6 +103,17 @@ export class DirectedGraph {
       edge.target.edgeCount += 1
       edge.source.outgoingEdgeCount += 1
       edge.target.incomingEdgeCount += 1
+
+      const reverseEdge = graph.edges.find(
+        e =>
+          e.source.id === edge.target.id &&
+          e.target.id === edge.source.id
+      )
+
+      if (reverseEdge) {
+        reverseEdge.bidirect = true
+        edge.bidirect = true
+      }
     }
 
     const directedGraph = new DirectedGraph(graph)
@@ -94,6 +124,7 @@ export class DirectedGraph {
 
   toJSON() {
     const graph = {}
+    graph.type = this.type
     graph.nodeAttributes = this.nodeAttributes
     graph.edgeAttributes = this.edgeAttributes
     graph.nodes = this.nodes.map(n => {
@@ -141,8 +172,8 @@ export class DirectedGraph {
   }
 
   generateNodeId() {
-    const id = this.counter
     this.counter += 1
+    const id = this.counter
 
     return id.toString()
   }
@@ -223,9 +254,7 @@ export class DirectedGraph {
   addEdge(source, target) {
     const existEdge = this.edges.find(
       e =>
-        (e.source.id === source.id &&
-          e.target.id === target.id) ||
-        (e.target.id === source.id && e.source.id === target.id)
+        e.source.id === source.id && e.target.id === target.id
     )
 
     if (!existEdge) {

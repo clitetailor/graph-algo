@@ -7,6 +7,8 @@
     <GraphNetwork
       mode="{mode}"
       bind:this="{graphViewer}"
+      onNodeClick="{onNodeClick}"
+      onUpdate="{onUpdate}"
     ></GraphNetwork>
     <div class="c-edit__menu">
       <Menu onBack="{onBack}" onSave="{onSave}"></Menu>
@@ -52,10 +54,10 @@
 <script>
   import { onMount } from 'svelte'
 
-  import Toolbar from './toolbar.html'
-  import Sidebar from './sidebar.html'
-  import Menu from './menu.html'
-  import GraphNetwork from './graph-network/graph-network.html'
+  import Toolbar from './toolbar.svelte'
+  import Sidebar from './sidebar.svelte'
+  import Menu from './menu.svelte'
+  import GraphNetwork from './graph-network/graph-network.svelte'
 
   import { loadSvgImage } from '../../ajax/image'
   import {
@@ -72,7 +74,7 @@
     getSearchParams
   } from '../../utils/location'
   import { requireAuth, usePage } from '../../utils/page'
-  import { Mode } from './graph-network/graph-network.html'
+  import { Mode } from './graph-network/graph-network.svelte'
   import {
     UndirectedGraph,
     DirectedGraph,
@@ -91,17 +93,24 @@
     if (params.id) {
       const graph = await loadGraph(params.id)
 
+      sidebar.setTitle(graph.title)
+
       if (graph.type === GraphType.UNDIRECTED_GRAPH) {
-        graphViewer.setGraph(UndirectedGraph.fromJSON(graph))
+        setGraph(UndirectedGraph.fromJSON(graph))
       } else {
-        graphViewer.setGraph(DirectedGraph.fromJSON(graph))
+        setGraph(DirectedGraph.fromJSON(graph))
       }
     } else if (params.type === 'undirected-graph') {
-      graphViewer.setGraph(new UndirectedGraph())
+      setGraph(new UndirectedGraph())
     } else {
-      graphViewer.setGraph(new DirectedGraph())
+      setGraph(new DirectedGraph())
     }
   })
+
+  function setGraph(graph) {
+    graphViewer.setGraph(graph)
+    sidebar.setGraph(graph)
+  }
 
   function setMode(newMode) {
     mode = newMode
@@ -116,12 +125,41 @@
     const graph = graphViewer.getGraph().toJSON()
 
     try {
-      await createGraph({
-        title,
-        ...graph
-      })
+      const params = getSearchParams()
+
+      if (params.id) {
+        await updateGraph(params.id, {
+          title,
+          ...graph
+        })
+      } else {
+        await createGraph({
+          title,
+          ...graph
+        })
+      }
     } catch (error) {
       throw error
     }
+  }
+
+  function onNodeClick(node) {
+    return event => {
+      if (mode === Mode.SELECT || mode === Mode.LINE) {
+        sidebar.showNode(node)
+      }
+    }
+  }
+
+  function onEdgeClick(edge) {
+    return event => {
+      if (mode === Mode.SELECT) {
+        sidebar.showEdge(edge)
+      }
+    }
+  }
+
+  function onUpdate() {
+    sidebar.update()
   }
 </script>

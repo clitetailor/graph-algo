@@ -36,37 +36,68 @@
     {#if isDefaultInfoActive()}
     <div class="o-tabs__panel"></div>
     {:else if isNodeInfoActive()}
-    <div class="o-tabs__panels">
+    <div class="o-tabs__panel">
       <div class="c-group">
         <div class="c-group__title"></div>
         <div class="c-group__list">
-          {#each reservedNodeAttributes as attr} {/each}
+          {#if currentNode}
+          <!--  -->
+          {#each graph.nodeReservedAttributes as attr}
+          <!--  -->
+          {#if !attr.hidden}
+          <div class="c-field">
+            <div class="c-field__label">
+              {readCamelCase(attr.name)}
+            </div>
+            <div class="c-field__input">
+              <input
+                type="text"
+                class="o-input c-input"
+                class:is-not-editable="{attr.editable !== undefined && !attr.editable}"
+                d-value="{showAttribute(currentNode, attr)}"
+                value="{showAttribute(currentNode, attr)}"
+                on:input="{(event) => setAttribute(currentNode, attr, event.target.value)}"
+              />
+            </div>
+          </div>
+          {/if}
+          <!--  -->
+          {/each}
+          <!--  -->
+          {/if}
         </div>
       </div>
 
       <div class="c-group">
         <div class="c-group__title"></div>
         <div class="c-group__list">
-          {#if nodeAttributes.length > 0} {#each nodeAttributes
-          as attr} {/each} {/if}
+          {#if graph.nodeAttributes.length > 0}
+          <!--  -->
+          {#each graph.nodeAttributes as attr}
+          <!--  -->
+          {readCamelCase(attr.name)}
+          <!--  -->
+          {/each}
+          <!--  -->
+          {/if}
         </div>
       </div>
     </div>
     {:else if isEdgeInfoActive()}
-    <div class="o-tabs__panels">
+    <div class="o-tabs__panel">
       <div class="c-group">
         <div class="c-group__title"></div>
         <div class="c-group__list">
-          {#each reservedEdgeAttributes as attr} {/each}
+          {#each graph.edgeReservedAttributes as attr} {/each}
         </div>
       </div>
 
       <div class="c-group">
         <div class="c-group__title"></div>
         <div class="c-group__list">
-          {#if edgeAttributes.length > 0}
+          {#if graph.edgeAttributes.length > 0}
           <!--  -->
-          {#each edgeAttributes as attr}
+          {#each graph.edgeAttributes as attr}
           <!--  -->
           {/each}
           <!--  -->
@@ -112,6 +143,7 @@
 
   .c-field {
     display: flex;
+    margin-bottom: 5px;
   }
 
   .c-field__label {
@@ -123,12 +155,17 @@
     font-size: 14px;
     font-weight: bold;
     color: hsl(0, 0%, 60%);
+    word-wrap: break-word;
   }
 
   .c-field__input {
     margin-left: 10px;
     flex: 1 0 0;
     width: 0;
+  }
+
+  .c-field__input input {
+    max-width: 100%;
   }
 </style>
 
@@ -146,17 +183,28 @@
 </script>
 
 <script>
+  import { UndirectedGraph } from '../../data/graph'
+  import { readCamelCase } from '../../utils/string'
+
   let title = 'Untitled'
   let titleInput
 
   let tab = Tab.INFO
   let infoSubTab = InfoSubTab.DEFAULT
 
-  export let reservedNodeAttributes = []
-  export let reservedEdgeAttributes = []
+  let graph = new UndirectedGraph()
+  let currentNode = null
+  let currentEdge = null
 
-  export let nodeAttributes = []
-  export let edgeAttributes = []
+  export function update() {
+    graph = graph
+    currentNode = currentNode
+    currentEdge = currentEdge
+  }
+
+  export function setGraph(newGraph) {
+    graph = newGraph
+  }
 
   export function focusTitle() {
     if (titleInput) {
@@ -202,11 +250,13 @@
   export function showNode(node) {
     showInfo()
     infoSubTab = InfoSubTab.NODE
+    currentNode = node
   }
 
   export function showEdge(edge) {
     showInfo()
     infoSubTab = InfoSubTab.EDGE
+    currentEdge = edge
   }
 
   export function showInfo() {
@@ -215,5 +265,42 @@
 
   export function showActions() {
     tab = Tab.ACTIONS
+  }
+
+  function setAttribute(target, attr, value) {
+    let formattedValue
+
+    if (attr.editable !== undefined && !attr.editable) {
+      return
+    }
+
+    try {
+      if (attr.type === 'float') {
+        formattedValue = parseFloat(value)
+      } else if (attr.type === 'int') {
+        formattedValue = parseInt(value)
+      } else {
+        formattedValue = value
+      }
+
+      target[attr.name] = formattedValue
+
+      currentNode = currentNode
+      currentEdge = currentEdge
+    } catch (error) {
+      throw error
+    }
+  }
+
+  function showAttribute(target, attr) {
+    const displayValue = target[attr.name]
+
+    if (attr.type === 'object') {
+      return JSON.stringify(displayValue)
+    } else if (attr.type === 'string') {
+      return displayValue || ''
+    } else {
+      return displayValue
+    }
   }
 </script>

@@ -10,28 +10,47 @@ export class UndirectedGraph {
     this.type = GraphType.UNDIRECTED_GRAPH
 
     this.nodeReservedAttributes = [
-      { type: 'string', name: 'id' },
-      { type: 'float', name: 'x' },
-      { type: 'float', name: 'y' },
-      { type: 'float', name: 'vx' },
-      { type: 'float', name: 'vy' },
-      { type: 'float', name: 'fx' },
-      { type: 'float', name: 'fy' },
-      { type: 'boolean', name: 'selected' },
+      { type: 'string', name: 'id', editable: false },
+      { type: 'string', name: 'title' },
+      { type: 'float', name: 'x', editable: false },
+      { type: 'float', name: 'y', editable: false },
+      { type: 'float', name: 'vx', editable: false },
+      { type: 'float', name: 'vy', editable: false },
       {
-        type: 'number',
-        name: 'outgoingEdgeCount',
-        hidden: true
+        type: 'float',
+        name: 'fx',
+        hidden: true,
+        editable: false
       },
       {
-        type: 'number',
+        type: 'float',
+        name: 'fy',
+        hidden: true,
+        editable: false
+      },
+      { type: 'boolean', name: 'selected', editable: false },
+      {
+        type: 'int',
+        name: 'edgeCount',
+        editable: false
+      },
+      {
+        type: 'int',
+        name: 'outgoingEdgeCount',
+        hidden: true,
+        editable: false
+      },
+      {
+        type: 'int',
         name: 'incomingEdgeCount',
-        hidden: true
+        hidden: true,
+        editable: false
       },
       {
         type: 'object',
         name: 'meta',
-        hidden: true
+        hidden: true,
+        editable: false
       }
     ]
     this.edgeReservedAttributes = [
@@ -65,7 +84,8 @@ export class UndirectedGraph {
         id: n.id,
         x: n.x,
         y: n.y,
-        data: n.data
+        data: n.data,
+        edgeCount: 0
         /*
         meta: n.meta.reduce((all, m) => {
           return {
@@ -152,8 +172,8 @@ export class UndirectedGraph {
   }
 
   generateNodeId() {
-    const id = this.counter
     this.counter += 1
+    const id = this.counter
 
     return id.toString()
   }

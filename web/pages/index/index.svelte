@@ -178,8 +178,8 @@
 
   import { usePage, requireAuth } from '../../utils/page'
 
-  import Login from './login.html'
-  import Signup from './signup.html'
+  import Login from './login.svelte'
+  import Signup from './signup.svelte'
 
   const page = usePage()
 

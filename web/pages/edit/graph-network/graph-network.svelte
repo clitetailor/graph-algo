@@ -65,7 +65,7 @@
       <g
         data-node-id="{node.id}"
         class:is-selected="{node.selected}"
-        on:click="{onNodeClick(node)}"
+        on:click="{_onNodeClick(node)}"
         on:mousedown="{onNodeMouseDown(node)}"
       >
         <circle
@@ -193,6 +193,8 @@
     updateMode()
   })
 
+  export let onUpdate = function() {}
+
   export function setGraph(newGraph) {
     graph = newGraph
   }
@@ -230,6 +232,7 @@
 
   function updateGraph() {
     graph = graph
+    onUpdate()
   }
 
   function getEdgeMarker(edge) {
@@ -297,8 +300,14 @@
     }
   }
 
-  function onNodeClick(node) {
+  export let onNodeClick = function() {
+    return function() {}
+  }
+
+  function _onNodeClick(node) {
     return event => {
+      onNodeClick(node)(event)
+
       switch (mode) {
         case Mode.SELECT:
           if (!node.selected) {
