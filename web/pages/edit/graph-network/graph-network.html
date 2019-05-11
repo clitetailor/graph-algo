@@ -3,10 +3,9 @@
   width="100%"
   height="100%"
   on:mousedown="{onSvgMouseDown}"
-  on:mousemove="{onSvgMouseMove}"
   on:mousewheel="{onSvgMouseWheel}"
   on:click="{onSvgClick}"
-  class="c-graph-network__layout"
+  class="c-graph-network"
 >
   <defs>
     <marker
@@ -21,32 +20,7 @@
       <path d="M 0 0 L 10 5 L 0 10 z" />
     </marker>
     <marker
-      id="c-graph-network__arrow--selected"
-      viewBox="0 0 10 10"
-      refX="10"
-      refY="5"
-      markerWidth="6"
-      markerHeight="6"
-      orient="auto-start-reverse"
-    >
-      <path
-        class="c-arrow is-selected"
-        d="M 0 0 L 10 5 L 0 10 z"
-      />
-    </marker>
-    <marker
-      id="c-graph-network__curve-arrow"
-      viewBox="0 0 10 10"
-      refX="10"
-      refY="5"
-      markerWidth="6"
-      markerHeight="6"
-      orient="auto-start-reverse"
-    >
-      <path d="M 0 0 L 10 5 L 0 10 z" />
-    </marker>
-    <marker
-      id="c-graph-network__curve-arrow--selected"
+      id="c-graph-network__selected-arrow"
       viewBox="0 0 10 10"
       refX="10"
       refY="5"
@@ -61,11 +35,13 @@
     </marker>
   </defs>
   <g transform="translate({offsetX}, {offsetY}) scale({scale})">
-    <g class="c-graph-network__edges">
-      {#each graph.edges as edge} {#if edge.bidirect}
+    <g class="c-edges">
+      {#each graph.edges as edge}
+      <!--  -->
+      {#if edge.bidirect}
       <path
-        d="{curve(edge)}"
-        marker-end="url(#c-graph-network__curve-arrow{isMarkerSelected(edge)})"
+        d="{drawCurve(edge, radius)}"
+        marker-end="{getEdgeMarker(edge)}"
         data-source-id="{edge.source.id}"
         data-target-id="{edge.target.id}"
         class:is-selected="{edge.selected}"
@@ -73,16 +49,18 @@
       ></path>
       {:else}
       <path
-        d="{line(edge)}"
-        marker-end="url(#c-graph-network__arrow{isMarkerSelected(edge)})"
+        d="{drawLine(edge, radius)}"
+        marker-end="{getEdgeMarker(edge)}"
         data-source-id="{edge.source.id}"
         data-target-id="{edge.target.id}"
         class:is-selected="{edge.selected}"
         on:click="{onEdgeClick(edge)}"
       ></path>
-      {/if} {/each}
+      {/if}
+      <!--  -->
+      {/each}
     </g>
-    <g class="c-graph-network__nodes">
+    <g class="c-nodes">
       {#each graph.nodes as node}
       <g
         data-node-id="{node.id}"
@@ -109,410 +87,337 @@
   </g>
 </svg>
 
+<svelte:window
+  on:mouseup="{onWindowMouseUp}"
+  on:mousemove="{onWindowMouseMove}"
+></svelte:window>
+
 <svelte:options accessors></svelte:options>
 
 <style>
-  svg text {
+  .c-graph-network {
     user-select: none;
   }
 
-  .c-graph-network__nodes circle {
+  .c-nodes circle {
     stroke: black;
     stroke-width: 2px;
     fill: white;
   }
 
-  .c-graph-network__nodes text {
+  .c-nodes text {
     font-family: Arial, Helvetica, sans-serif;
     fill: black;
   }
 
-  .c-graph-network__nodes .is-selected circle {
-    stroke: orange;
+  .c-nodes .is-selected circle {
+    stroke: hsl(28, 100%, 50%);
   }
 
-  .c-graph-network__nodes circle:hover {
+  .c-nodes circle:hover {
     cursor: pointer;
   }
 
-  .c-graph-network__nodes .is-selected text {
-    fill: orange;
+  .c-nodes .is-selected text {
+    fill: hsl(28, 100%, 50%);
   }
 
-  .c-graph-network__edges path,
-  .c-graph-network__edges line {
+  .c-edges path,
+  .c-edges line {
     stroke: black;
     stroke-width: 2px;
     fill: transparent;
   }
 
-  .c-graph-network__edges path:hover,
-  .c-graph-network__edges line:hover {
+  .c-edges path:hover,
+  .c-edges line:hover {
     cursor: pointer;
   }
 
-  .c-graph-network__edges .is-selected {
-    stroke: orange;
+  .c-edges .is-selected {
+    stroke: hsl(28, 100%, 50%);
   }
 
   .c-arrow.is-selected {
-    fill: orange;
+    fill: hsl(28, 100%, 50%);
   }
 </style>
 
+<script context="module">
+  export const Mode = {
+    SELECT: 'SELECT',
+    MOVE: 'MOVE',
+    NODE: 'NODE',
+    LINE: 'LINE'
+  }
+</script>
+
 <script>
   import { onMount, onDestroy, beforeUpdate } from 'svelte'
-  import * as d3 from 'd3'
 
-  import { createSimulation } from './simulation'
-  import { seedNodes } from './seed'
-
-  export let offsetX = 0
-  export let offsetY = 0
-  export let scale = 1
+  import {
+    createSimulation,
+    updateSimulation as _updateSimulation
+  } from './simulation'
+  import {
+    GraphType,
+    DirectedGraph,
+    UndirectedGraph
+  } from '../../../data/graph'
+  import { drawLine, drawCurve } from './draw'
 
   let svg
   const radius = 20
 
-  export let graph = {
-    nodes: [],
-    edges: []
-  }
-  const selected = {
-    nodes: [],
-    edges: []
-  }
+  let offsetX = 0
+  let offsetY = 0
+  let scale = 1
+
+  export let mode = Mode.SELECT
+  let currentMode = mode
+  let isModeLocked = false
+  let isNodeDragging = false
+  let draggingNode = undefined
+  let isSvgDragging = false
+
+  let graph = new UndirectedGraph()
 
   let simulation
-  let nodeCounter = 0
-
-  let noop = () => {}
-
-  export let onSvgMouseDown = noop
-  export let onSvgMouseMove = noop
-  export let onSvgClick = noop
-  export let onSvgMount = noop
-  export let onSvgMouseWheel = noop
-
-  export let onNodeClick = () => noop
-  export let onNodeMouseDown = () => noop
-
-  export let onEdgeClick = () => noop
 
   onMount(() => {
-    simulation = createSimulation({
-      width: svg.clientWidth,
-      height: svg.clientHeight,
-      radius
-    })
-    simulation.nodes(graph.nodes)
-    simulation.force('link').links(graph.edges)
-
-    simulation.on('tick', () => {
-      graph.nodes = graph.nodes
-      graph.edges = graph.edges
-    })
-
-    onSvgMount()
+    setupSimulation()
+    setupSvgOffset()
   })
 
-  export function setNodes(nodes) {
-    for (const node of nodes) {
-      node.count = 0
-    }
+  beforeUpdate(() => {
+    updateMode()
+  })
 
-    graph.nodes = nodes
-    graph.edges = []
-    resetNodeCounter()
+  export function setGraph(newGraph) {
+    graph = newGraph
   }
 
-  export function setEdges(edges) {
-    for (const edge of edges) {
-      edge.source.count += 1
-      edge.target.count += 1
-
-      const reverseEdge = graph.edges.find(
-        e =>
-          e.target.id === edge.source.id &&
-          e.source.id === edge.target.id
-      )
-
-      if (reverseEdge) {
-        reverseEdge.bidirect = true
-        edge.bidirect = true
-      }
-    }
-
-    graph.edges = edges
+  export function getGraph() {
+    return graph
   }
 
-  export function restartSimulation(alpha = 1) {
-    simulation.nodes(graph.nodes)
-    simulation.force('link').links(graph.edges)
-    simulation.alpha(alpha)
-    simulation.restart()
-  }
-
-  export function resetNodeCounter() {
-    nodeCounter = graph.nodes.reduce(
-      (prev, node) => (node.id > prev ? node.id : prev),
-      0
-    )
-  }
-
-  export function getWidth() {
-    return svg.clientWidth
-  }
-
-  export function getHeight() {
-    return svg.clientHeight
-  }
-
-  function normalize(vec) {
-    const dist = Math.sqrt(vec.x * vec.x + vec.y * vec.y)
-
-    return {
-      x: vec.x / dist,
-      y: vec.y / dist
-    }
-  }
-
-  function line(edge) {
-    const source = {}
-    const target = {}
-
-    const distVec = {
-      x: edge.target.x - edge.source.x,
-      y: edge.target.y - edge.source.y
-    }
-    const normVec = normalize(distVec)
-
-    source.x = edge.source.x + normVec.x * radius
-    source.y = edge.source.y + normVec.y * radius
-
-    target.x = edge.target.x - normVec.x * radius
-    target.y = edge.target.y - normVec.y * radius
-
-    return `
-      M ${source.x} ${source.y}
-      L ${target.x} ${target.y}
-    `
-  }
-
-  function rotate(vec, angle) {
-    const radian = (angle / 180) * Math.PI
-    return {
-      x: vec.x * Math.cos(radian) - vec.y * Math.sin(radian),
-      y: vec.x * Math.sin(radian) + vec.y * Math.cos(radian)
-    }
-  }
-
-  function mulitply(vec, number) {
-    return {
-      x: vec.x * number,
-      y: vec.y * number
-    }
-  }
-
-  function curve(edge) {
-    const source = {}
-    const mid = {}
-    const target = {}
-
-    const normVec = normalize({
-      x: edge.target.x - edge.source.x,
-      y: edge.target.y - edge.source.y
+  function setupSimulation() {
+    simulation = createSimulation({
+      radius
     })
-
-    const multiplied = mulitply(normVec, radius)
-    const leftRadian = rotate(multiplied, 20)
-    const rightRadian = rotate(multiplied, 160)
-
-    source.x = edge.source.x + leftRadian.x
-    source.y = edge.source.y + leftRadian.y
-
-    target.x = edge.target.x + rightRadian.x
-    target.y = edge.target.y + rightRadian.y
-
-    const prepVec = rotate(mulitply(multiplied, 1.5), 90)
-
-    mid.x = (source.x + target.x) / 2 + prepVec.x
-    mid.y = (source.y + target.y) / 2 + prepVec.y
-
-    return `
-      M ${source.x} ${source.y}
-      Q
-        ${mid.x}
-        ${mid.y}
-        ${target.x} ${target.y}
-    `
+    updateSimulation()
+    simulation.on('tick', () => {
+      updateGraph()
+    })
   }
 
-  function isNodeValid(node) {
-    return true
-    /*
-    (
-      node.x !== undefined &&
-      node.y !== undefined &&
-      !isNaN(node.x) &&
-      !isNaN(node.y)
-    )
-    */
+  function setupSvgOffset() {
+    offsetX = svg.clientWidth / 2
+    offsetY = svg.clientHeight / 2
   }
 
-  function isEdgeValid(edge) {
-    return true
-    /*
-    (
-      edge.source &&
-      isNodeValid(edge.source) &&
-      edge.target &&
-      isNodeValid(edge.target)
-    )
-    */
+  function updateMode() {
+    if (currentMode !== mode) {
+      graph.deselectAll()
+
+      currentMode = mode
+    }
   }
 
-  function isMarkerSelected(edge) {
-    if (edge.selected) {
-      return '--selected'
+  function updateSimulation() {
+    _updateSimulation(simulation, graph)
+  }
+
+  function updateGraph() {
+    graph = graph
+  }
+
+  function getEdgeMarker(edge) {
+    if (graph.type === GraphType.UNDIRECTED_GRAPH) {
+      return undefined
     }
 
-    return ''
+    if (edge.selected) {
+      return 'url(#c-graph-network__selected-arrow)'
+    }
+
+    return 'url(#c-graph-network__arrow)'
   }
 
-  export function createNodeAt(x, y) {
-    nodeCounter = nodeCounter + 1
-    graph.nodes.push({
-      id: nodeCounter,
-      count: 0,
+  function getMouseCoordinates(event) {
+    const rect = svg.getBoundingClientRect()
+
+    let x = (event.clientX - rect.left - offsetX) / scale
+    let y = (event.clientY - rect.top - offsetY) / scale
+
+    return {
       x,
       y
-    })
-    graph.nodes = graph.nodes
-
-    restartSimulation()
+    }
   }
 
-  export function createEdge(sourceNode, targetNode) {
-    if (
-      !graph.edges.find(
-        edge =>
-          edge.source.id === sourceNode.id &&
-          edge.target.id === targetNode.id
-      )
-    ) {
-      const reverseEdge = graph.edges.find(
-        e =>
-          e.source.id === targetNode.id &&
-          e.target.id === sourceNode.id
-      )
+  function onSvgDragStart(event) {
+    isSvgDragging = true
+    isModeLocked = true
+  }
+  function onSvgDrag(event) {
+    offsetX = offsetX + event.movementX
+    offsetY = offsetY + event.movementY
+  }
+  function onSvgDragEnd(event) {
+    isSvgDragging = false
+    isModeLocked = false
+  }
+  function onSvgMouseDown() {
+    if (mode === Mode.MOVE) {
+      onSvgDragStart(event)
+    }
+  }
+  function onSvgClick(event) {
+    switch (mode) {
+      case Mode.NODE:
+        if (!event.altKey) {
+          const mouseCoordinates = getMouseCoordinates(event)
+          graph.createNodeAt(
+            mouseCoordinates.x,
+            mouseCoordinates.y
+          )
+          updateSimulation()
+          updateGraph()
+        }
+        break
+    }
+  }
+  function onSvgMouseWheel() {
+    const wheelDelta = -event.wheelDelta
 
-      sourceNode.count += 1
-      targetNode.count += 1
+    let newScale = scale - wheelDelta / 5000
+    if (newScale > 0 && newScale < 2) {
+      scale = newScale
+    }
+  }
 
-      const edge = {
-        id: `${sourceNode.id}-${targetNode.id}`,
-        source: sourceNode,
-        target: targetNode
+  function onNodeClick(node) {
+    return event => {
+      switch (mode) {
+        case Mode.SELECT:
+          if (!node.selected) {
+            graph.deselectAll()
+            graph.selectNode(node)
+          } else {
+            graph.deselectAll()
+          }
+          updateGraph()
+          break
+
+        case Mode.NODE:
+          if (event.altKey) {
+            graph.removeNode(node)
+            updateSimulation()
+          }
+          updateGraph()
+          break
+
+        case Mode.LINE:
+          if (graph.selectedNodes.length === 0) {
+            graph.selectNode(node)
+          } else {
+            const lastSelectedNode = graph.getLastSelectedNode()
+            if (lastSelectedNode.id === node.id) {
+              graph.deselectAll()
+            } else {
+              graph.addEdge(lastSelectedNode, node)
+              graph.deselectAll()
+              updateSimulation()
+              console.log(graph.selectedNodes)
+            }
+          }
+          console.log(node)
+          updateGraph()
+          break
+      }
+    }
+  }
+  function onNodeDrag(node) {
+    updateSimulation(0.6)
+
+    const mouseCoordinates = getMouseCoordinates(event)
+
+    draggingNode.fx = mouseCoordinates.x
+    draggingNode.fy = mouseCoordinates.y
+
+    updateGraph()
+  }
+  function onNodeDragStart(node) {
+    return event => {
+      if (mode === Mode.MOVE) {
+        event.stopPropagation()
+        isNodeDragging = true
+        isModeLocked = true
+        draggingNode = node
+
+        updateGraph()
+      }
+    }
+  }
+  function onNodeDragEnd(node) {
+    draggingNode.fx = null
+    draggingNode.fy = null
+    draggingNode = null
+
+    isNodeDragging = false
+    isModeLocked = false
+
+    updateGraph()
+  }
+  function onNodeMouseDown(node) {
+    return onNodeDragStart(node)
+  }
+
+  function onEdgeClick(edge) {
+    return event => {
+      switch (mode) {
+        case Mode.SELECT:
+          if (!edge.selected) {
+            graph.deselectAll()
+            graph.selectEdge(edge)
+          } else {
+            graph.deselectAll()
+          }
+
+          updateGraph()
+          break
+
+        case Mode.LINE:
+          if (event.altKey) {
+            graph.removeEdge(edge)
+            updateSimulation()
+
+            updateGraph()
+          }
+          break
+      }
+    }
+  }
+
+  function onWindowMouseUp(event) {
+    if (mode === Mode.MOVE) {
+      if (isSvgDragging) {
+        onSvgDragEnd(event)
       }
 
-      if (reverseEdge) {
-        edge.bidirect = true
-        reverseEdge.bidirect = true
+      if (isNodeDragging) {
+        onNodeDragEnd(event)
       }
-
-      graph.edges.push(edge)
-      graph.edges = graph.edges
-      restartSimulation()
     }
   }
-
-  export function selectNode(node) {
-    if (!node.selected) {
-      node.selected = true
-      selected.nodes.push(node)
-      graph.nodes = graph.nodes
+  function onWindowMouseMove(event) {
+    if (mode === Mode.MOVE && isSvgDragging) {
+      onSvgDrag(event)
     }
-  }
 
-  export function getSelectedNodes() {
-    return selected.nodes
-  }
-
-  export function selectEdge(edge) {
-    edge.selected = true
-    selected.edges.push(edge)
-    graph.edges = graph.edges
-  }
-
-  export function getSelectedEdges() {
-    return selected.edges
-  }
-
-  export function clearNodeSelections() {
-    for (const node of selected.nodes) {
-      node.selected = undefined
+    if (mode === Mode.MOVE && isNodeDragging) {
+      onNodeDrag(event)
     }
-    selected.nodes = []
-    graph.nodes = graph.nodes
-  }
-
-  export function clearEdgeSelections() {
-    for (const edge of selected.edges) {
-      edge.selected = undefined
-    }
-    selected.edges = []
-    graph.edges = graph.edges
-  }
-
-  export function clearSelections() {
-    clearNodeSelections()
-    clearEdgeSelections()
-  }
-
-  export function removeNode(node) {
-    const nodeIndex = graph.nodes.indexOf(node)
-    if (nodeIndex !== -1) {
-      graph.nodes.splice(nodeIndex, 1)
-      graph.nodes = graph.nodes
-
-      graph.edges = graph.edges.filter(
-        e => e.source.id !== node.id && e.target.id !== node.id
-      )
-      graph.edges = graph.edges
-
-      restartSimulation()
-    }
-  }
-
-  export function removeEdge(edge) {
-    const edgeIndex = graph.edges.indexOf(edge)
-    if (edgeIndex !== -1) {
-      const reverseEdge = graph.edges.find(
-        e =>
-          e.source.id === edge.target.id &&
-          e.target.id === edge.source.id
-      )
-
-      if (reverseEdge) {
-        reverseEdge.bidirect = false
-      }
-
-      graph.edges.splice(edgeIndex, 1)
-      graph.edges = graph.edges
-      restartSimulation()
-    }
-  }
-
-  export function getBoundingClientRect() {
-    return svg.getBoundingClientRect()
-  }
-
-  export function isActive() {
-    return simulation.alpha() > simulation.alphaMin()
-  }
-
-  export function update() {
-    graph = graph
   }
 </script>

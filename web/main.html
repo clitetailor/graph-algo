@@ -12,31 +12,39 @@
   const page = usePage()
   let comp
 
-  page('/', async () => {
+  page('/', () => {
+    notRequireAuth(() => {
+      comp = Home
+    })
+  })
+  page('/dashboard', () => {
+    requireAuth(() => {
+      comp = Dashboard
+    })
+  })
+  page('/edit', () => {
+    requireAuth(() => {
+      comp = Edit
+    })
+  })
+
+  async function requireAuth(callback) {
     const authStatus = await checkAuth()
 
     if (authStatus.ok) {
-      comp = Home
+      callback()
+    } else {
+      page('/')
+    }
+  }
+
+  async function notRequireAuth(callback) {
+    const authStatus = await checkAuth()
+
+    if (!authStatus.ok) {
+      callback()
     } else {
       page('/dashboard')
     }
-  })
-  page('/dashboard', async () => {
-    const authStatus = await checkAuth()
-
-    if (authStatus.ok) {
-      comp = Dashboard
-    } else {
-      page('/')
-    }
-  })
-  page('/edit', async () => {
-    const authStatus = await checkAuth()
-
-    if (authStatus.ok) {
-      comp = Edit
-    } else {
-      page('/')
-    }
-  })
+  }
 </script>

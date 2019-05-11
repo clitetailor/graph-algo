@@ -21,10 +21,23 @@ const typeDefs = /* GraphQL */ `
     targetId: ID
   }
 
+  type GraphAttribute {
+    type: String
+    name: String
+  }
+
+  input GraphAttributeInput {
+    type: String
+    name: String
+  }
+
   type Graph {
     id: ID
     userId: ID
+    type: String
     title: String
+    nodeAttributes: [GraphAttribute]
+    edgeAttributes: [GraphAttribute]
     nodes: [Node]
     edges: [Edge]
     nodeCount: Int
@@ -33,6 +46,9 @@ const typeDefs = /* GraphQL */ `
 
   input GraphInput {
     title: String
+    type: String
+    nodeAttributes: [GraphAttributeInput]
+    edgeAttributes: [GraphAttributeInput]
     nodes: [NodeInput]
     edges: [EdgeInput]
   }

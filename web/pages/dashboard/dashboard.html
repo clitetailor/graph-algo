@@ -1,197 +1,47 @@
 <div class="c-dashboard">
-  <header class="c-dashboard__header c-header">
-    <div class="c-header__title">
-      <h1>Dashboard</h1>
-    </div>
-
-    <div class="c-header__spacing"></div>
-
-    <navbar class="c-header__navbar c-navbar">
-      <div class="c-navbar__item" on:click="{triggerLogout}">
-        <i class="material-icons">arrow_back</i>
-        <a>Logout</a>
-      </div>
-    </navbar>
+  <header class="c-dashboard__header">
+    <Navbar></Navbar>
   </header>
 
-  <main class="c-dashboard__main c-main">
-    <div class="c-main__grid c-grid">
-      {#each graphInfos as graphInfo}
-      <div class="c-grid__item">
-        <div
-          class="c-card c-graph"
-          on:click="{() => page(`/edit?id=${graphInfo.id}`)}"
-        >
-          <div class="c-card__title">
-            <h3>{graphInfo.title}</h3>
-          </div>
-          <div class="c-card__description">
-            <div>
-              <b>Node Count:</b>
-              <span>{graphInfo.nodeCount}</span>
-            </div>
-            <div>
-              <b>Edge Count:</b>
-              <span>{graphInfo.edgeCount}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/each}
-
-      <div
-        class="c-grid__item"
-        on:click="{() => page('/edit')}"
-      >
-        <div class="c-card c-new-graph">
-          <div class="c-new-graph__add-button">
-            <i class="material-icons">add</i>
-          </div>
-          <div class="c-new-graph__title">
-            <span>Create a new Graph</span>
-          </div>
-        </div>
-      </div>
+  <main class="c-dashboard__main">
+    <div class="u-content-width">
+      <Create></Create>
+      <Recent></Recent>
     </div>
   </main>
 </div>
 
 <style>
   .c-dashboard {
-    padding: 80px;
-  }
-
-  .c-header {
-    display: flex;
-    flex-flow: row nowrap;
-    align-items: center;
-  }
-
-  .c-header__spacing {
-    flex: auto;
-  }
-
-  .c-navbar {
-    display: flex;
-    flex-flow: row nowrap;
-    align-items: center;
-  }
-
-  .c-navbar__account {
-    font-weight: bold;
-    margin-right: 20px;
-  }
-
-  .c-navbar {
-    margin-left: -60px;
-    display: flex;
-  }
-
-  .c-navbar__item {
-    position: relative;
-    margin-left: 60px;
-    font-size: 20px;
-  }
-
-  .c-navbar__item i {
-    margin-right: 10px;
-    font-size: 20px !important;
-    transform: translateY(2px);
-    cursor: pointer;
-  }
-
-  .c-navbar__item::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 100%;
-    bottom: -3px;
-    height: 2px;
-    background: black;
-    transition: right 0.2s;
-  }
-
-  .c-navbar__item:hover::after {
-    right: 0;
-  }
-
-  .c-main {
-    margin-top: 80px;
-  }
-
-  .c-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    grid-gap: 30px;
-  }
-
-  .c-grid__item {
-    height: 180px;
-  }
-
-  .c-card {
     height: 100%;
-    border: 2px solid black;
-    cursor: pointer;
+    padding-top: 56px;
   }
 
-  .c-card:hover {
-    background: black;
-    border: 2px solid transparent;
-    color: white;
+  .c-dashboard :global(.u-content-width) {
+    width: 1200px;
   }
 
-  .c-card__title h3 {
-    margin: 0;
-  }
-
-  .c-new-graph {
+  .c-dashboard__main {
+    padding-top: 30px;
     display: flex;
-    flex-flow: column nowrap;
-    align-items: center;
     justify-content: center;
   }
 
-  .c-new-graph__add-button i {
-    margin-top: 10px;
-    font-size: 30px;
+  .c-dashboard :global(.c-group) {
+    margin-bottom: 30px;
   }
 
-  .c-new-graph__title {
-    font-size: 20px;
+  .c-dashboard :global(.c-group__title) {
+    margin-bottom: 15px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    color: hsl(0, 0%, 20%);
   }
 </style>
 
 <script>
-  import { onMount } from 'svelte'
-
-  import { usePage } from '../../utils/page'
-  import { logout } from '../../graphql/auth'
-  import { getCurrentUser } from '../../graphql/user'
-  import { getGraphInfos } from '../../graphql/graph'
-
-  const page = usePage()
-
-  let username = ''
-
-  let graphInfos = []
-
-  onMount(async () => {
-    loadCurrentUser()
-    loadGraphInfos()
-  })
-
-  async function loadCurrentUser() {
-    const user = await getCurrentUser()
-    username = user.username
-  }
-
-  async function loadGraphInfos() {
-    graphInfos = await getGraphInfos()
-  }
-
-  function triggerLogout() {
-    logout()
-    page('/')
-  }
+  import Navbar from './navbar.html'
+  import Create from './create.html'
+  import Recent from './recent.html'
 </script>

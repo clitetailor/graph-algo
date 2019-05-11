@@ -1,0 +1,76 @@
+.o-input {
+  padding: 8px 10px;
+  outline: none;
+  border: 1px solid hsl(0, 0%, 80%);
+  border-radius: 5px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  color: hsl(0, 0%, 40%);
+}
+
+.o-tabs {
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.o-tabs__tab-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  height: 42px;
+  position: relative;
+}
+
+.o-tabs__tab-bar::after {
+  content: '';
+  height: 1px;
+  background: hsl(0, 0%, 80%);
+  position: absolute;
+  bottom: 0;
+  left: 20px;
+  right: 20px;
+  z-index: 1;
+}
+
+.o-tabs__tab {
+  height: 100%;
+  flex: auto;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  font-size: 14px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  color: hsl(0, 0%, 80%);
+  cursor: pointer;
+  user-select: none;
+}
+
+.o-tabs__tab.is-active {
+  color: hsl(261, 100%, 50%);
+}
+
+.o-tabs__tab-decorator {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.o-tabs__tab.is-active .o-tabs__tab-decorator::after {
+  content: '';
+  display: block;
+  height: 2px;
+  border-radius: 2px;
+  background: hsl(261, 100%, 50%);
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  bottom: 1px;
+  z-index: 2;
+}
+
+.o-tabs__panel {
+  padding: 20px;
+  width: 100%;
+  flex: auto;
+}

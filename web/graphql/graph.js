@@ -8,6 +8,7 @@ export async function getGraphInfos() {
         graphInfos {
           id
           userId
+          type
           title
           nodeCount
           edgeCount
@@ -26,6 +27,7 @@ export async function loadGraph(id) {
         graph(id: $id) {
           id
           userId
+          type
           title
           nodes {
             id
@@ -111,7 +113,6 @@ export function graphAdded() {
             title
             nodeCount
             edgeCount
-            createdAt
           }
         }
       `
@@ -146,7 +147,6 @@ export function graphUpdated() {
           title
           nodeCount
           edgeCount
-          createAt
         }
       }
     `

@@ -19,6 +19,7 @@ const resolvers = {
         attributes: [
           'id',
           'title',
+          'type',
           'userId',
           'nodeCount',
           'edgeCount',
@@ -47,13 +48,31 @@ const resolvers = {
         return new ApolloError('No graph exists')
       }
 
-      const { data, ...rest } = graph
-      const { nodes, edges } = JSON.parse(data)
-
-      return {
+      const {
+        id,
+        title,
+        type,
+        data,
+        nodeCount,
+        edgeCount
+      } = graph
+      const {
         nodes,
         edges,
-        ...rest
+        nodeAttributes,
+        edgeAttributes
+      } = JSON.parse(data)
+
+      return {
+        id,
+        title,
+        type,
+        nodes,
+        edges,
+        nodeAttributes,
+        edgeAttributes,
+        nodeCount,
+        edgeCount
       }
     })
   },
@@ -63,28 +82,47 @@ const resolvers = {
       const { graph: graphInput } = args
       const { userId, Graph } = context
 
-      const { title, nodes, edges } = graphInput
+      const {
+        title,
+        type,
+        nodeAttributes,
+        edgeAttributes,
+        nodes,
+        edges
+      } = graphInput
 
       const data = JSON.stringify({
+        nodeAttributes,
+        edgeAttributes,
         nodes,
         edges
       })
 
+      const nodeCount = nodes.length
+      const edgeCount = edges.length
+
       const graph = await Graph.create({
         userId,
-        title,
         data,
-        nodeCount: nodes.length,
-        edgeCount: edges.length
+        title,
+        type,
+        nodeCount,
+        edgeCount
       })
 
-      const { id, createdAt } = graph
+      const { id } = graph
 
       const graphAdded = {
         id,
         userId,
-        createdAt,
-        ...graphInput
+        title,
+        type,
+        nodeAttributes,
+        edgeAttributes,
+        nodes,
+        edges,
+        nodeCount,
+        edgeCount
       }
 
       pubsub.publish(GraphAction.GRAPH_ADDED, {
@@ -98,18 +136,29 @@ const resolvers = {
       const { id: graphId, graph: graphInput } = args
       const { Graph, userId } = context
 
-      const { nodes, edges, ...rest } = graphInput
+      const {
+        title,
+        type,
+        nodeAttributes,
+        edgeAttributes,
+        nodes,
+        edges
+      } = graphInput
+
       const data = JSON.stringify({
+        nodeAttributes,
+        edgeAttributes,
         nodes,
         edges
       })
 
       const graphUpdated = await Graph.update(
         {
+          title,
+          type,
           data,
           nodeCount: nodes.length,
-          edgeCount: edges.length,
-          ...rest
+          edgeCount: edges.length
         },
         {
           where: {
@@ -145,14 +194,35 @@ const resolvers = {
         return new ApolloError('No graph exists')
       }
 
-      const { data, ...rest } = graph
-      const { nodes, edges } = JSON.parse(data)
-
-      const graphRemoved = {
-        ...rest,
+      const {
+        id,
+        title,
+        type,
+        data,
+        nodeCount,
+        edgeCount
+      } = graph
+      const {
+        nodeAttributes,
+        edgeAttributes,
         nodes,
         edges
+      } = JSON.parse(data)
+
+      const graphRemoved = {
+        id,
+        userId,
+        title,
+        type,
+        nodeAttributes,
+        edgeAttributes,
+        nodes,
+        edges,
+        nodeCount,
+        edgeCount
       }
+
+      await graph.destroy()
 
       pubsub.publish(GraphAction.GRAPH_REMOVED, {
         graphRemoved

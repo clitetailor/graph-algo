@@ -4,6 +4,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       userId: DataTypes.INTEGER,
       title: DataTypes.STRING,
+      type: DataTypes.STRING,
       data: DataTypes.TEXT,
       nodeCount: DataTypes.INTEGER,
       edgeCount: DataTypes.INTEGER

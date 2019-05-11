@@ -51,6 +51,7 @@ export default {
     copy({
       'web/index.html': 'public/index.html',
       'web/global.css': 'public/global.css',
+      'web/design.css': 'public/design.css',
       'node_modules/material-design-lite/material.min.css':
         'public/material-design-lite/material.min.css',
       'node_modules/material-design-lite/material.min.js':

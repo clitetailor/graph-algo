@@ -1,14 +1,10 @@
 import axios from 'axios'
 
-export async function loadSvgImage(el) {
-  const dataSrc = el.getAttribute('data-src')
-
+export async function loadSvgImage(dataSrc) {
   const payload = await axios({
     method: 'GET',
     url: dataSrc
   })
-
-  el.innerHTML = payload.data
 
   return payload.data
 }

@@ -1,0 +1,219 @@
+<div class="c-sidebar">
+  <div class="c-sidebar__header">
+    <input
+      class="c-sidebar__title"
+      type="text"
+      bind:value="{title}"
+      bind:this="{titleInput}"
+    />
+    <i class="material-icons" on:click="{() => focusTitle()}">
+      edit
+    </i>
+  </div>
+
+  <div class="c-sidebar__tabs o-tabs">
+    <div class="o-tabs__tab-bar">
+      <div
+        class="o-tabs__tab"
+        class:is-active="{tab === Tab.INFO}"
+        on:click="{() => showInfo()}"
+      >
+        <div class="o-tabs__tab-decorator">
+          Info
+        </div>
+      </div>
+      <div
+        class="o-tabs__tab"
+        class:is-active="{tab === Tab.ACTIONS}"
+        on:click="{() => showActions()}"
+      >
+        <div class="o-tabs__tab-decorator">
+          Actions
+        </div>
+      </div>
+    </div>
+
+    {#if isDefaultInfoActive()}
+    <div class="o-tabs__panel"></div>
+    {:else if isNodeInfoActive()}
+    <div class="o-tabs__panels">
+      <div class="c-group">
+        <div class="c-group__title"></div>
+        <div class="c-group__list">
+          {#each reservedNodeAttributes as attr} {/each}
+        </div>
+      </div>
+
+      <div class="c-group">
+        <div class="c-group__title"></div>
+        <div class="c-group__list">
+          {#if nodeAttributes.length > 0} {#each nodeAttributes
+          as attr} {/each} {/if}
+        </div>
+      </div>
+    </div>
+    {:else if isEdgeInfoActive()}
+    <div class="o-tabs__panels">
+      <div class="c-group">
+        <div class="c-group__title"></div>
+        <div class="c-group__list">
+          {#each reservedEdgeAttributes as attr} {/each}
+        </div>
+      </div>
+
+      <div class="c-group">
+        <div class="c-group__title"></div>
+        <div class="c-group__list">
+          {#if edgeAttributes.length > 0}
+          <!--  -->
+          {#each edgeAttributes as attr}
+          <!--  -->
+          {/each}
+          <!--  -->
+          {/if}
+        </div>
+      </div>
+    </div>
+    {:else}
+    <div class="o-tabs__panel"></div>
+    {/if}
+  </div>
+</div>
+
+<style>
+  .c-sidebar {
+    height: 100%;
+    border-left: 1px solid hsl(0, 0%, 80%);
+  }
+
+  .c-sidebar__header {
+    display: flex;
+    flex-flow: row nowrap;
+    padding: 20px;
+  }
+
+  .c-sidebar__title {
+    flex: auto;
+    padding: 0px;
+    outline: none;
+    border: none;
+    box-shadow: none;
+    color: hsl(0, 0%, 40%);
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  .c-sidebar__header i {
+    font-size: 18px;
+    color: hsl(0, 0%, 40%);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .c-field {
+    display: flex;
+  }
+
+  .c-field__label {
+    flex: 1 0 0;
+    display: flex;
+    align-items: center;
+    align-self: stretch;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    color: hsl(0, 0%, 60%);
+  }
+
+  .c-field__input {
+    margin-left: 10px;
+    flex: 1 0 0;
+    width: 0;
+  }
+</style>
+
+<script context="module">
+  export const Tab = {
+    INFO: 'INFO',
+    ACTIONS: 'ACTIONS'
+  }
+
+  export const InfoSubTab = {
+    DEFAULT: 'DEFAULT',
+    NODE: 'NODE',
+    EDGE: 'EDGE'
+  }
+</script>
+
+<script>
+  let title = 'Untitled'
+  let titleInput
+
+  let tab = Tab.INFO
+  let infoSubTab = InfoSubTab.DEFAULT
+
+  export let reservedNodeAttributes = []
+  export let reservedEdgeAttributes = []
+
+  export let nodeAttributes = []
+  export let edgeAttributes = []
+
+  export function focusTitle() {
+    if (titleInput) {
+      titleInput.focus()
+    }
+  }
+
+  export function getTitle() {
+    return title
+  }
+
+  export function setTitle(t) {
+    title = t
+  }
+
+  export function isInfoTabActive() {
+    return tab === Tab.INFO
+  }
+
+  export function isActionsTabActive() {
+    return tab === Tab.ACTIONS
+  }
+
+  export function isDefaultInfoActive() {
+    return (
+      isInfoTabActive() && infoSubTab === InfoSubTab.DEFAULT
+    )
+  }
+
+  export function isNodeInfoActive() {
+    return isInfoTabActive() && infoSubTab === InfoSubTab.NODE
+  }
+
+  export function isEdgeInfoActive() {
+    return isInfoTabActive() && infoSubTab === InfoSubTab.EDGE
+  }
+
+  export function showDefault() {
+    showInfo()
+    infoSubTab = InfoSubTab.DEFAULT
+  }
+
+  export function showNode(node) {
+    showInfo()
+    infoSubTab = InfoSubTab.NODE
+  }
+
+  export function showEdge(edge) {
+    showInfo()
+    infoSubTab = InfoSubTab.EDGE
+  }
+
+  export function showInfo() {
+    tab = Tab.INFO
+  }
+
+  export function showActions() {
+    tab = Tab.ACTIONS
+  }
+</script>

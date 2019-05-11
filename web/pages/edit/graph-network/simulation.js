@@ -1,6 +1,8 @@
 import * as d3 from 'd3'
 
-export function createSimulation({ width, height, radius }) {
+export function createSimulation(options) {
+  const { radius } = options
+
   const simulation = d3
     .forceSimulation()
     .velocityDecay(0.8)
@@ -13,8 +15,9 @@ export function createSimulation({ width, height, radius }) {
           const length =
             200 /
             Math.pow(
-              Math.abs(edge.target.count - edge.source.count) +
-                1,
+              Math.abs(
+                edge.target.edgeCount - edge.source.edgeCount
+              ) + 1,
               0.3
             )
 
@@ -31,4 +34,11 @@ export function createSimulation({ width, height, radius }) {
     .force('collide', d3.forceCollide(radius * 2))
 
   return simulation
+}
+
+export function updateSimulation(simulation, graph) {
+  simulation.nodes(graph.nodes)
+  simulation.force('link').links(graph.edges)
+  simulation.alpha(1)
+  simulation.restart()
 }
