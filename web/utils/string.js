@@ -9,3 +9,14 @@ export function readCamelCase(str) {
 
   return chunks.join(' ')
 }
+
+export function writeCamelCase(str) {
+  return str
+    .split(/\s+/g)
+    .map((chunk, index) =>
+      index === 0
+        ? chunk
+        : chunk[0].toUpperCase() + chunk.substr(1)
+    )
+    .join('')
+}

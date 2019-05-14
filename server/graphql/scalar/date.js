@@ -1,9 +1,7 @@
 const { GraphQLScalarType } = require('graphql')
 const { Kind } = require('graphql/language')
 
-const { typeDefs } = require('./types')
-
-const resolvers = {
+const dateResolvers = {
   Date: new GraphQLScalarType({
     name: 'Date',
 
@@ -24,11 +22,6 @@ const resolvers = {
   })
 }
 
-const dateSchema = {
-  resolvers,
-  typeDefs
-}
-
 module.exports = {
-  dateSchema
+  dateResolvers
 }

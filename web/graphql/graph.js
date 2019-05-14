@@ -29,14 +29,34 @@ export async function loadGraph(id) {
           userId
           type
           title
+          nodeAttributes {
+            type
+            name
+            defaultValue
+          }
+          edgeAttributes {
+            type
+            name
+            defaultValue
+          }
           nodes {
             id
+            title
             x
             y
+            meta {
+              name
+              value
+            }
           }
           edges {
             sourceId
             targetId
+            weight
+            meta {
+              name
+              value
+            }
           }
           nodeCount
           edgeCount

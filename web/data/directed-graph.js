@@ -2,11 +2,13 @@ import { GraphType } from './graph'
 
 const defaultGraph = {
   nodes: [],
-  edges: []
+  edges: [],
+  nodeAttributes: [],
+  edgeAttributes: []
 }
 
 export class DirectedGraph {
-  constructor(graph = defaultGraph) {
+  constructor(graph) {
     this.type = GraphType.DIRECTED_GRAPH
 
     this.nodeReservedAttributes = [
@@ -39,22 +41,27 @@ export class DirectedGraph {
         type: 'number',
         name: 'incomingEdgeCount',
         editable: false
-      }
+      },
+      { type: 'object', name: 'meta', hidden: true }
     ]
     this.edgeReservedAttributes = [
-      { type: 'string', name: 'id' },
-      { type: 'string', name: 'sourceId' },
-      { type: 'string', name: 'targetId' },
+      { type: 'string', name: 'id', hidden: true },
+      { type: 'string', name: 'sourceId', editable: false },
+      { type: 'string', name: 'targetId', editable: false },
       { type: 'object', name: 'source', hidden: true },
       { type: 'object', name: 'target', hidden: true },
-      { type: 'boolean', name: 'selected' },
-      { type: 'boolean', name: 'bidirect' }
+      { type: 'float', name: 'weight', defaultValue: 1 },
+      { type: 'boolean', name: 'selected', editable: false },
+      { type: 'boolean', name: 'bidirect', editable: false },
+      { type: 'object', name: 'meta', hidden: true }
     ]
-    this.nodeAttributes = []
-    this.edgeAttributes = []
+    this.nodeAttributes =
+      graph.nodeAttributes || defaultGraph.nodeAttributes
+    this.edgeAttributes =
+      graph.edgeAttributes || defaultGraph.edgeAttributes
 
-    this.nodes = graph.nodes
-    this.edges = graph.edges
+    this.nodes = graph.nodes || defaultGraph.nodes
+    this.edges = graph.edges || defaultGraph.edges
 
     this.selectedNodes = []
     this.selectedEdges = []
@@ -64,37 +71,43 @@ export class DirectedGraph {
 
   static fromJSON(json) {
     const graph = {}
+    graph.nodeAttributes = json.nodeAttributes
+    graph.edgeAttributes = json.edgeAttributes
     graph.nodes = json.nodes.map(n => {
       return {
         id: n.id,
+        title: n.title,
         x: n.x,
         y: n.y,
-        data: n.data,
+        vx: 0,
+        vy: 0,
+        selected: false,
         edgeCount: 0,
         outgoingEdgeCount: 0,
-        incomingEdgeCount: 0
-        /*
-        meta: n.meta.reduce((all, m) => {
-          return {
-            ...all,
-            [m.name]: m.value
-          }
-        }, {})
-        */
+        incomingEdgeCount: 0,
+        ...(n.meta
+          ? n.meta.reduce((target, attr) => {
+              return {
+                ...target,
+                [attr.name]: attr.value
+              }
+            }, {})
+          : {})
       }
     })
     graph.edges = json.edges.map(e => {
       return {
         source: graph.nodes.find(n => n.id === e.sourceId),
-        target: graph.nodes.find(n => n.id === e.targetId)
-        /*
-        meta: e.meta.reduce((all, m) => {
-          return {
-            ...all,
-            [m.name]: m.value
-          }
-        }, {})
-        */
+        target: graph.nodes.find(n => n.id === e.targetId),
+        weight: e.weight,
+        ...(e.meta
+          ? e.meta.reduce((target, attr) => {
+              return {
+                ...target,
+                [attr.name]: attr.value
+              }
+            }, {})
+          : {})
       }
     })
 
@@ -125,36 +138,53 @@ export class DirectedGraph {
   toJSON() {
     const graph = {}
     graph.type = this.type
-    graph.nodeAttributes = this.nodeAttributes
-    graph.edgeAttributes = this.edgeAttributes
+    graph.nodeAttributes = this.nodeAttributes.map(attr => {
+      return {
+        type: attr.type,
+        name: attr.name,
+        defaultValue: attr.defaultValue
+      }
+    })
+    graph.edgeAttributes = this.edgeAttributes.map(attr => {
+      return {
+        type: attr.type,
+        name: attr.name,
+        defaultValue: attr.defaultValue
+      }
+    })
     graph.nodes = this.nodes.map(n => {
       return {
         id: n.id,
+        title: n.title,
         x: n.x,
         y: n.y,
-        data: n.data
-        /*
-        meta: this.nodeAttributes.reduce((all, a) => {
-          return {
-            ...all,
-            [a]: n.meta[a]
-          }
-        }, {})
-        */
+        meta: this.nodeAttributes
+          .map(attr => {
+            return n[attr.name] !== undefined
+              ? {
+                  name: attr.name,
+                  value: n[attr.name]
+                }
+              : null
+          })
+          .filter(attr => attr !== null)
       }
     })
     graph.edges = this.edges.map(e => {
       return {
         sourceId: e.source.id,
-        targetId: e.target.id
-        /*
-        meta: this.edgeAttributes.reduce((all, a) => {
-          return {
-            ...all,
-            [a]: n.meta[a]
-          }
-        }, {})
-        */
+        targetId: e.target.id,
+        weight: e.weight,
+        meta: this.edgeAttributes
+          .map(attr => {
+            return e[attr.name] !== undefined
+              ? {
+                  name: attr.name,
+                  value: e[attr.name]
+                }
+              : null
+          })
+          .filter(attr => attr !== null)
       }
     })
 
@@ -260,7 +290,8 @@ export class DirectedGraph {
     if (!existEdge) {
       const edge = {
         source,
-        target
+        target,
+        weight: this.getEdgeAttribute('weight').defaultValue
       }
       const reverseEdge = this.findReverseEdge(edge)
 
@@ -336,29 +367,57 @@ export class DirectedGraph {
     this.deselectEdges()
   }
 
-  addNodeAttribute(name, type) {
-    const existAttr = this.nodeAttributes.find(
-      a => a.name === name
+  hasNodeAttribute(attr) {
+    return (
+      this.nodeAttributes.find(a => a.name === attr.name) ||
+      this.nodeReservedAttributes.find(
+        a => a.name === attr.name
+      )
     )
-
-    if (!existAttr) {
-      this.nodeAttributes.push({
-        name,
-        type
-      })
-    }
   }
 
-  addEdgeAttribute(name, type) {
-    const existAttr = this.edgeAttributes.find(
-      a => a.name === name
-    )
+  addNodeAttribute(attr) {
+    this.nodeAttributes.push(attr)
+  }
 
-    if (!existAttr) {
-      this.edgeAttributes.push({
-        name,
-        type
-      })
-    }
+  getNodeAttribute(attrName) {
+    return (
+      this.nodeReservedAttributes.find(
+        a => a.name === attrName
+      ) || this.nodeAttributes.find(a => a.name === attrName)
+    )
+  }
+
+  removeNodeAttribute(attr) {
+    this.nodeAttributes = this.nodeAttributes.filter(
+      a => a.name !== attr.name
+    )
+  }
+
+  hasEdgeAttribute() {
+    return (
+      this.edgeAttributes.find(a => a.name === attr.name) ||
+      this.edgeReservedAttributes.find(
+        a => a.name === attr.name
+      )
+    )
+  }
+
+  addEdgeAttribute(attr) {
+    this.edgeAttributes.push(attr)
+  }
+
+  getEdgeAttribute(attrName) {
+    return (
+      this.edgeReservedAttributes.find(
+        a => a.name === attrName
+      ) || this.edgeAttributes.find(a => a.name === attrName)
+    )
+  }
+
+  removeEdgeAttribute(attr) {
+    this.edgeAttributes = this.edgeAttributes.filter(
+      a => a.name !== attr.name
+    )
   }
 }

@@ -4,7 +4,7 @@
   height="100%"
   on:mousedown="{onSvgMouseDown}"
   on:mousewheel="{onSvgMouseWheel}"
-  on:click="{onSvgClick}"
+  on:click="{_onSvgClick}"
   class="c-graph-network"
 >
   <defs>
@@ -35,36 +35,73 @@
     </marker>
   </defs>
   <g transform="translate({offsetX}, {offsetY}) scale({scale})">
-    <g class="c-edges">
+    <g>
       {#each graph.edges as edge}
       <!--  -->
       {#if edge.bidirect}
-      <path
-        d="{drawCurve(edge, radius)}"
-        marker-end="{getEdgeMarker(edge)}"
+      <!--  -->
+      {#await caculateCurve(edge, radius) then curve}
+      <g
+        class="c-edge"
+        class:is-selected="{edge.selected}"
         data-source-id="{edge.source.id}"
         data-target-id="{edge.target.id}"
-        class:is-selected="{edge.selected}"
-        on:click="{onEdgeClick(edge)}"
-      ></path>
+        on:click="{_onEdgeClick(edge)}"
+      >
+        <path
+          d="M {curve.source.x} {curve.source.y} Q {curve.mid.x} {curve.mid.y} {curve.target.x} {curve.target.y}"
+          marker-end="{getEdgeMarker(edge)}"
+        ></path>
+        {#await curveCenter(curve.source, curve.mid,
+        curve.target) then center}
+        <text
+          x="{center.x}"
+          y="{center.y}"
+          text-anchor="middle"
+          alignment-baseline="middle"
+        >
+          {edge.weight}
+        </text>
+        {/await}
+      </g>
+      {/await}
+      <!--  -->
       {:else}
-      <path
-        d="{drawLine(edge, radius)}"
-        marker-end="{getEdgeMarker(edge)}"
+      <!--  -->
+      {#await lineCenter(edge) then center}
+      <g
+        class="c-edge"
+        class:is-selected="{edge.selected}"
         data-source-id="{edge.source.id}"
         data-target-id="{edge.target.id}"
-        class:is-selected="{edge.selected}"
-        on:click="{onEdgeClick(edge)}"
-      ></path>
+        on:click="{_onEdgeClick(edge)}"
+      >
+        <path
+          d="{drawLine(edge, radius)}"
+          marker-end="{getEdgeMarker(edge)}"
+        ></path>
+        <text
+          x="{center.x}"
+          y="{center.y}"
+          text-anchor="middle"
+          alignment-baseline="middle"
+        >
+          {edge.weight}
+        </text>
+      </g>
+      {/await}
+      <!--  -->
       {/if}
       <!--  -->
       {/each}
     </g>
-    <g class="c-nodes">
+    <g>
       {#each graph.nodes as node}
       <g
-        data-node-id="{node.id}"
+        class="c-node"
         class:is-selected="{node.selected}"
+        class:has-title="{node.title}"
+        data-node-id="{node.id}"
         on:click="{_onNodeClick(node)}"
         on:mousedown="{onNodeMouseDown(node)}"
       >
@@ -79,7 +116,7 @@
           text-anchor="middle"
           alignment-baseline="middle"
         >
-          {node.id}
+          {node.title || node.id}
         </text>
       </g>
       {/each}
@@ -99,43 +136,61 @@
     user-select: none;
   }
 
-  .c-nodes circle {
+  .c-node circle {
     stroke: black;
     stroke-width: 2px;
     fill: white;
   }
 
-  .c-nodes text {
+  .c-node text {
     font-family: Arial, Helvetica, sans-serif;
     fill: black;
   }
 
-  .c-nodes .is-selected circle {
+  .c-node.is-selected circle {
     stroke: hsl(28, 100%, 50%);
   }
 
-  .c-nodes circle:hover {
+  .c-node:hover {
     cursor: pointer;
   }
 
-  .c-nodes .is-selected text {
+  .c-node.is-selected text {
     fill: hsl(28, 100%, 50%);
   }
 
-  .c-edges path,
-  .c-edges line {
+  .c-node.has-title {
+    font-size: 12px;
+  }
+
+  .c-edge path,
+  .c-edge line {
     stroke: black;
     stroke-width: 2px;
     fill: transparent;
   }
 
-  .c-edges path:hover,
-  .c-edges line:hover {
+  .c-edge text {
+    font-family: Arial, Helvetica, sans-serif;
+    fill: black;
+    font-size: 14px;
+    paint-order: stroke;
+    stroke-width: 5px;
+    stroke: hsl(0, 0%, 90%);
+  }
+
+  .c-edge:hover,
+  .c-edge:hover {
     cursor: pointer;
   }
 
-  .c-edges .is-selected {
+  .c-edge.is-selected path,
+  .c-edge.is-selected line {
     stroke: hsl(28, 100%, 50%);
+  }
+
+  .c-edge.is-selected text {
+    fill: hsl(28, 100%, 50%);
   }
 
   .c-arrow.is-selected {
@@ -164,7 +219,12 @@
     DirectedGraph,
     UndirectedGraph
   } from '../../../data/graph'
-  import { drawLine, drawCurve } from './draw'
+  import {
+    drawLine,
+    lineCenter,
+    curveCenter,
+    caculateCurve
+  } from './draw'
 
   let svg
   const radius = 20
@@ -235,6 +295,10 @@
     onUpdate()
   }
 
+  export function update() {
+    graph = graph
+  }
+
   function getEdgeMarker(edge) {
     if (graph.type === GraphType.UNDIRECTED_GRAPH) {
       return undefined
@@ -263,20 +327,35 @@
     isSvgDragging = true
     isModeLocked = true
   }
+
   function onSvgDrag(event) {
     offsetX = offsetX + event.movementX
     offsetY = offsetY + event.movementY
   }
+
   function onSvgDragEnd(event) {
     isSvgDragging = false
     isModeLocked = false
   }
+
   function onSvgMouseDown() {
     if (mode === Mode.MOVE) {
       onSvgDragStart(event)
     }
   }
-  function onSvgClick(event) {
+
+  export let onSvgClick = function() {}
+  function _onSvgClick(event) {
+    if (
+      !event.target.closest('.c-node') &&
+      !event.target.closest('.c-edge')
+    ) {
+      onSvgClick(event)
+
+      graph.deselectAll()
+      updateGraph()
+    }
+
     switch (mode) {
       case Mode.NODE:
         if (!event.altKey) {
@@ -291,6 +370,7 @@
         break
     }
   }
+
   function onSvgMouseWheel() {
     const wheelDelta = -event.wheelDelta
 
@@ -345,6 +425,7 @@
       }
     }
   }
+
   function onNodeDrag(node) {
     updateSimulation(0.6)
 
@@ -355,6 +436,7 @@
 
     updateGraph()
   }
+
   function onNodeDragStart(node) {
     return event => {
       if (mode === Mode.MOVE) {
@@ -367,6 +449,7 @@
       }
     }
   }
+
   function onNodeDragEnd(node) {
     draggingNode.fx = null
     draggingNode.fy = null
@@ -377,12 +460,18 @@
 
     updateGraph()
   }
+
   function onNodeMouseDown(node) {
     return onNodeDragStart(node)
   }
 
-  function onEdgeClick(edge) {
+  export let onEdgeClick = function() {
+    return function() {}
+  }
+
+  function _onEdgeClick(edge) {
     return event => {
+      onEdgeClick(edge)(event)
       switch (mode) {
         case Mode.SELECT:
           if (!edge.selected) {
@@ -418,6 +507,7 @@
       }
     }
   }
+
   function onWindowMouseMove(event) {
     if (mode === Mode.MOVE && isSvgDragging) {
       onSvgDrag(event)

@@ -1,34 +1,54 @@
 const typeDefs = /* GraphQL */ `
   type Node {
     id: ID
+    title: String
     x: Float
     y: Float
+    meta: [GraphAttributeData]
   }
 
   input NodeInput {
     id: ID
+    title: String
     x: Float
     y: Float
+    meta: [GraphAttributeDataInput]
   }
 
   type Edge {
     sourceId: ID
     targetId: ID
+    weight: Float
+    meta: [GraphAttributeData]
   }
 
   input EdgeInput {
     sourceId: ID
     targetId: ID
+    weight: Float
+    meta: [GraphAttributeDataInput]
   }
 
-  type GraphAttribute {
+  type GraphAttribute  {
     type: String
     name: String
+    defaultValue: Any
   }
 
   input GraphAttributeInput {
     type: String
     name: String
+    defaultValue: Any
+  }
+
+  type GraphAttributeData {
+    name: String
+    value: Any
+  }
+
+  input GraphAttributeDataInput {
+    name: String
+    value: Any
   }
 
   type Graph {

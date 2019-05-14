@@ -2,13 +2,14 @@ const { makeExecutableSchema } = require('apollo-server')
 const { merge } = require('lodash')
 
 const { rootSchema } = require('./graphql/root')
-const { dateSchema } = require('./graphql/date')
+const { scalarSchema } = require('./graphql/scalar')
 const { helloSchema } = require('./graphql/hello')
 const { userSchema } = require('./graphql/user')
 const { graphSchema } = require('./graphql/graph')
 
 const { typeDefs, resolvers } = mergeSchemas({
   schemas: [
+    scalarSchema,
     rootSchema,
     helloSchema,
     userSchema,

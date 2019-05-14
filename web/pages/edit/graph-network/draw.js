@@ -20,7 +20,21 @@ export function drawLine(edge, radius) {
   `
 }
 
-export function drawCurve(edge, radius) {
+export function lineCenter(edge) {
+  return {
+    x: (edge.source.x + edge.target.x) / 2,
+    y: (edge.source.y + edge.target.y) / 2
+  }
+}
+
+export function curveCenter(start, mid, end) {
+  return {
+    x: start.x / 4 + mid.x / 2 + end.x / 4,
+    y: start.y / 4 + mid.y / 2 + end.y / 4
+  }
+}
+
+export function caculateCurve(edge, radius) {
   const source = {}
   const mid = {}
   const target = {}
@@ -45,13 +59,11 @@ export function drawCurve(edge, radius) {
   mid.x = (source.x + target.x) / 2 + prepVec.x
   mid.y = (source.y + target.y) / 2 + prepVec.y
 
-  return `
-      M ${source.x} ${source.y}
-      Q
-        ${mid.x}
-        ${mid.y}
-        ${target.x} ${target.y}
-    `
+  return {
+    source,
+    mid,
+    target
+  }
 }
 
 export function mulitply(vec, number) {

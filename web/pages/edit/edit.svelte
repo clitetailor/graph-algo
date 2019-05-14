@@ -7,8 +7,10 @@
     <GraphNetwork
       mode="{mode}"
       bind:this="{graphViewer}"
+      onSvgClick="{onSvgClick}"
       onNodeClick="{onNodeClick}"
-      onUpdate="{onUpdate}"
+      onEdgeClick="{onEdgeClick}"
+      onUpdate="{onGraphUpdate}"
     ></GraphNetwork>
     <div class="c-edit__menu">
       <Menu onBack="{onBack}" onSave="{onSave}"></Menu>
@@ -16,7 +18,10 @@
   </div>
 
   <div class="c-edit__sidebar">
-    <Sidebar bind:this="{sidebar}"></Sidebar>
+    <Sidebar
+      bind:this="{sidebar}"
+      onUpdate="{onSidebarUpdate}"
+    ></Sidebar>
   </div>
 </div>
 
@@ -133,14 +138,20 @@
           ...graph
         })
       } else {
-        await createGraph({
+        const result = await createGraph({
           title,
           ...graph
         })
+
+        updateSearchParams({ id: result.id })
       }
     } catch (error) {
       throw error
     }
+  }
+
+  function onSvgClick(event) {
+    sidebar.showDefault()
   }
 
   function onNodeClick(node) {
@@ -159,7 +170,11 @@
     }
   }
 
-  function onUpdate() {
+  function onGraphUpdate() {
     sidebar.update()
+  }
+
+  function onSidebarUpdate() {
+    graphViewer.update()
   }
 </script>
