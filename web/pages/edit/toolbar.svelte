@@ -27,6 +27,13 @@
   >
     <SvgImg src="/images/edit/line-mode.svg"></SvgImg>
   </div>
+  <div
+    class="c-toolbar__icon"
+    class:is-active="{mode === Mode.REMOVE}"
+    on:click="{() => setMode(Mode.REMOVE)}"
+  >
+    <SvgImg src="/images/edit/erase-mode.svg"></SvgImg>
+  </div>
 </div>
 
 <style>

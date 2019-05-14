@@ -229,18 +229,21 @@ export class UndirectedGraph {
   }
 
   removeNode(node) {
-    const nodeIndex = this.nodes.find(n => n.id === node.id)
+    const nodeIndex = this.nodes.findIndex(n => n.id === node.id)
 
     if (nodeIndex !== -1) {
       this.removeNodeIncidentEdges(node)
 
-      this.node.splice(nodeIndex, 1)
+      this.nodes.splice(nodeIndex, 1)
     }
   }
 
   removeNodeIncidentEdges(node) {
+    console.log(...this.edges)
+    console.log(node)
+
     this.edges = this.edges.filter(
-      e => e.source.id === node.id || e.target.id === node.id
+      e => e.source.id !== node.id && e.target.id !== node.id
     )
 
     node.edgeCount = 0

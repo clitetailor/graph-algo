@@ -1,3 +1,7 @@
+export function edgeId(edge) {
+  return `${edge.source.id}-${edge.target.id}`
+}
+
 export function drawLine(edge, radius) {
   const source = {}
   const target = {}

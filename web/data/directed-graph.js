@@ -234,12 +234,12 @@ export class DirectedGraph {
   }
 
   removeNode(node) {
-    const nodeIndex = this.nodes.find(n => n.id === node.id)
+    const nodeIndex = this.nodes.findIndex(n => n.id === node.id)
 
     if (nodeIndex !== -1) {
       this.removeNodeIncidentEdges(node)
 
-      this.node.splice(nodeIndex, 1)
+      this.nodes.splice(nodeIndex, 1)
     }
   }
 

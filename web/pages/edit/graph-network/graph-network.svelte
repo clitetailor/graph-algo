@@ -36,7 +36,7 @@
   </defs>
   <g transform="translate({offsetX}, {offsetY}) scale({scale})">
     <g>
-      {#each graph.edges as edge}
+      {#each graph.edges as edge (edgeId(edge))}
       <!--  -->
       {#if edge.bidirect}
       <!--  -->
@@ -96,7 +96,7 @@
       {/each}
     </g>
     <g>
-      {#each graph.nodes as node}
+      {#each graph.nodes as node (node.id)}
       <g
         class="c-node"
         class:is-selected="{node.selected}"
@@ -220,6 +220,7 @@
     UndirectedGraph
   } from '../../../data/graph'
   import {
+    edgeId,
     drawLine,
     lineCenter,
     curveCenter,
@@ -422,6 +423,15 @@
           }
           updateGraph()
           break
+
+        case Mode.REMOVE:
+          graph.removeNode(node)
+          updateSimulation()
+          updateGraph()
+          break
+
+        default:
+          break
       }
     }
   }
@@ -491,6 +501,14 @@
 
             updateGraph()
           }
+          break
+
+        case Mode.REMOVE:
+          graph.removeEdge(edge)
+          updateSimulation()
+          updateGraph()
+
+        default:
           break
       }
     }
