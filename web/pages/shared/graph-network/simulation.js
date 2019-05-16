@@ -13,13 +13,14 @@ export function createSimulation(options) {
         .id(d => d.id)
         .distance(edge => {
           const length =
-            200 /
-            Math.pow(
-              Math.abs(
-                edge.target.edgeCount - edge.source.edgeCount
-              ) + 1,
-              0.3
-            )
+            60 *
+              Math.sqrt(
+                (edge.source.edgeCount +
+                  edge.target.edgeCount) /
+                  2
+              ) +
+            (edge.source.radius || radius) +
+            (edge.target.radius || radius)
 
           return Math.max(length, 100)
         })
@@ -31,7 +32,12 @@ export function createSimulation(options) {
         .strength(-200)
         .distanceMax(100)
     )
-    .force('collide', d3.forceCollide(radius * 2))
+    .force(
+      'collide',
+      d3.forceCollide(node => {
+        return node.radius || radius
+      })
+    )
 
   return simulation
 }

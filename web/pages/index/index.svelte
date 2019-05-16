@@ -176,7 +176,7 @@
   import { onMount } from 'svelte'
   import { fade } from 'svelte/transition'
 
-  import { usePage, requireAuth } from '../../utils/page'
+  import { usePage } from '../../utils/page'
 
   import Login from './login.svelte'
   import Signup from './signup.svelte'

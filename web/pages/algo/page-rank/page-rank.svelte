@@ -1,24 +1,24 @@
-<div class="c-edit">
-  <div class="c-edit__toolbar">
-    <Toolbar bind:mode="{mode}"></Toolbar>
+<div class="c-page-rank">
+  <div class="c-page-rank__toolbar">
+    <Toolbar
+      bind:this="{toolbar}"
+      bind:mode="{mode}"
+      onModeChange="{setMode}"
+    ></Toolbar>
   </div>
 
-  <div class="c-edit__main">
+  <div class="c-page-rank__main">
     <GraphNetwork
-      mode="{mode}"
       bind:this="{graphViewer}"
       bind:mode="{mode}"
       bind:graph="{graph}"
-      onSvgClick="{onSvgClick}"
-      onNodeClick="{onNodeClick}"
-      onEdgeClick="{onEdgeClick}"
     ></GraphNetwork>
-    <div class="c-edit__menu">
-      <Menu onBack="{onBack}" onSave="{onSave}"></Menu>
+    <div class="c-page-rank__menu">
+      <Menu onBack="{onBack}"></Menu>
     </div>
   </div>
 
-  <div class="c-edit__sidebar">
+  <div class="c-page-rank__sidebar">
     <Sidebar
       bind:this="{sidebar}"
       bind:graph="{graph}"
@@ -27,31 +27,31 @@
 </div>
 
 <style>
-  .c-edit {
+  .c-page-rank {
     display: flex;
     flex-flow: row nowrap;
     width: 100%;
     height: 100%;
   }
 
-  .c-edit__toolbar {
+  .c-page-rank__toolbar {
     flex: 0 0 auto;
   }
 
-  .c-edit__main {
+  .c-page-rank__main {
     flex: auto;
     overflow: hidden;
     position: relative;
     background: hsl(0, 0%, 90%);
   }
 
-  .c-edit__menu {
+  .c-page-rank__menu {
     position: absolute;
     right: 0;
     top: 0;
   }
 
-  .c-edit__sidebar {
+  .c-page-rank__sidebar {
     flex: 0 auto;
     width: 300px;
   }
@@ -60,10 +60,10 @@
 <script>
   import { onMount } from 'svelte'
 
-  import Toolbar from './toolbar.svelte'
+  import Toolbar from '../toolbar.svelte'
+  import Menu from '../menu.svelte'
+  import GraphNetwork from '../../shared/graph-network/graph-network.svelte'
   import Sidebar from './sidebar.svelte'
-  import Menu from './menu.svelte'
-  import GraphNetwork from '../shared/graph-network/graph-network.svelte'
 
   import {
     createGraph,
@@ -73,25 +73,26 @@
     graphAdded,
     graphRemoved,
     graphUpdated
-  } from '../../graphql/graph'
+  } from '../../../graphql/graph'
+  import { Mode } from '../../shared/graph-network/graph-network.svelte'
   import {
     updateSearchParams,
     getSearchParams
-  } from '../../utils/location'
-  import { usePage } from '../../utils/page'
-  import { Mode } from '../shared/graph-network/graph-network.svelte'
+  } from '../../../utils/location'
+  import { usePage } from '../../../utils/page'
   import {
     UndirectedGraph,
     DirectedGraph,
     GraphType
-  } from '../../data/graph'
+  } from '../../../data/graph'
+
+  const page = usePage()
 
   let graphViewer
   let sidebar
+  let toolbar
   let mode = Mode.SELECT
   let graph = new UndirectedGraph()
-
-  const page = usePage()
 
   onMount(async () => {
     const params = getSearchParams()
@@ -104,30 +105,18 @@
       } else {
         graph = DirectedGraph.fromJSON(loadedGraph)
       }
-    } else if (params.type === 'undirected-graph') {
-      graph = new UndirectedGraph()
-    } else {
-      graph = new DirectedGraph()
     }
   })
 
-  function onBack() {
-    page('/dashboard')
+  function setMode(newMode) {
+    mode = newMode
   }
 
-  async function onSave() {
-    try {
-      const params = getSearchParams()
+  function onBack() {
+    const params = getSearchParams()
 
-      if (params.id) {
-        await updateGraph(params.id, graph.toJSON())
-      } else {
-        const result = await createGraph(graph.toJSON())
-
-        updateSearchParams({ id: result.id })
-      }
-    } catch (error) {
-      throw error
+    if (params.id) {
+      page(`/edit?id=${params.id}`)
     }
   }
 

@@ -13,27 +13,6 @@
   >
     <SvgImg src="/images/edit/move-mode.svg"></SvgImg>
   </div>
-  <div
-    class="c-toolbar__icon"
-    class:is-active="{mode === Mode.NODE}"
-    on:click="{() => setMode(Mode.NODE)}"
-  >
-    <SvgImg src="/images/edit/node-mode.svg"></SvgImg>
-  </div>
-  <div
-    class="c-toolbar__icon"
-    class:is-active="{mode === Mode.LINE}"
-    on:click="{() => setMode(Mode.LINE)}"
-  >
-    <SvgImg src="/images/edit/line-mode.svg"></SvgImg>
-  </div>
-  <div
-    class="c-toolbar__icon"
-    class:is-active="{mode === Mode.REMOVE}"
-    on:click="{() => setMode(Mode.REMOVE)}"
-  >
-    <SvgImg src="/images/edit/erase-mode.svg"></SvgImg>
-  </div>
 </div>
 
 <style>

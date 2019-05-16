@@ -5,10 +5,8 @@
       type="text"
       bind:value="{graph.title}"
       bind:this="{titleInput}"
+      readonly="true"
     />
-    <i class="material-icons" on:click="{() => focusTitle()}">
-      edit
-    </i>
   </div>
 
   <div class="c-sidebar__tabs o-tabs">
@@ -24,11 +22,11 @@
       </div>
       <div
         class="o-tabs__tab"
-        class:is-active="{tab === Tab.ACTIONS}"
-        on:click="{() => showActions()}"
+        class:is-active="{tab === Tab.RESULT}"
+        on:click="{() => showResult()}"
       >
         <div class="o-tabs__tab-decorator">
-          Actions
+          Result
         </div>
       </div>
     </div>
@@ -135,66 +133,6 @@
           {/if}
         </div>
       </div>
-
-      <div class="c-group">
-        <div class="c-group__title">new custom attribute</div>
-        <div class="c-group__list">
-          <div class="c-field">
-            <div class="c-field__label">name</div>
-            <div class="c-field__input">
-              <input
-                type="text"
-                class="o-input c-input"
-                bind:value="{newNodeAttribute.name}"
-              />
-            </div>
-          </div>
-
-          <div class="c-field">
-            <div class="c-field__label">type</div>
-            <div class="c-field__input">
-              <select
-                type="text"
-                class="o-input"
-                bind:value="{newNodeAttribute.type}"
-              >
-                <option value="string">string</option>
-                <option value="int">int</option>
-                <option value="float">float</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="c-field">
-            <div class="c-field__label">default value</div>
-            <div class="c-field__input">
-              <input
-                type="text"
-                class="o-input c-input"
-                value="{showAttributeDefaultValue(newNodeAttribute)}"
-                on:change="{(event) => setAttributeDefaultValue(newNodeAttribute, event.target.value)}"
-              />
-            </div>
-          </div>
-
-          {#if addNodeAttributeErrorMsg}
-          <div class="c-field">
-            <div class="o-error">
-              {addNodeAttributeErrorMsg}
-            </div>
-          </div>
-          {/if}
-
-          <div class="c-field c-field--button">
-            <button
-              class="o-button o-button--active"
-              on:click="{addNodeAttribute}"
-            >
-              Add
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
     {:else if isEdgeInfoActive()}
     <div class="o-tabs__panel">
@@ -259,91 +197,9 @@
           {/if}
         </div>
       </div>
-
-      <div class="c-group">
-        <div class="c-group__title">new custom attribute</div>
-        <div class="c-group__list">
-          <div class="c-field">
-            <div class="c-field__label">name</div>
-            <div class="c-field__input">
-              <input
-                type="text"
-                class="o-input c-input"
-                bind:value="{newEdgeAttribute.name}"
-              />
-            </div>
-          </div>
-
-          <div class="c-field">
-            <div class="c-field__label">type</div>
-            <div class="c-field__input">
-              <select
-                type="text"
-                class="o-input"
-                bind:value="{newEdgeAttribute.type}"
-              >
-                <option value="string">string</option>
-                <option value="int">int</option>
-                <option value="float">float</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="c-field">
-            <div class="c-field__label">default value</div>
-            <div class="c-field__input">
-              <input
-                type="text"
-                class="o-input c-input"
-                value="{showAttributeDefaultValue(newEdgeAttribute)}"
-                on:change="{(event) => setAttributeDefaultValue(newEdgeAttribute, event.target.value)}"
-              />
-            </div>
-          </div>
-
-          {#if addEdgeAttributeErrorMsg}
-          <div class="c-field">
-            <div class="o-error">
-              {addEdgeAttributeErrorMsg}
-            </div>
-          </div>
-          {/if}
-
-          <div class="c-field c-field--button">
-            <button
-              class="o-button o-button--active"
-              on:click="{addEdgeAttribute}"
-            >
-              Add
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
     {:else}
-    <div class="o-tabs__panel">
-      <div class="c-group">
-        <div class="c-group__title">algorithms</div>
-        <div class="c-group__list">
-          <div class="c-field">
-            <div class="c-field__label">page rank</div>
-            <div
-              class="c-field__action"
-              on:click="{gotoPageRank}"
-            >
-              <i class="material-icons">arrow_forward</i>
-            </div>
-          </div>
-
-          <div class="c-field">
-            <div class="c-field__label">hits</div>
-            <div class="c-field__action" on:click="{gotoHits}">
-              <i class="material-icons">arrow_forward</i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <div class="o-tabs__panel"></div>
     {/if}
   </div>
 </div>
@@ -415,7 +271,6 @@
 
   .c-field__action {
     flex: 0 0 auto;
-    cursor: pointer;
   }
 
   .c-field__action i {
@@ -439,7 +294,7 @@
 <script context="module">
   export const Tab = {
     INFO: 'INFO',
-    ACTIONS: 'ACTIONS'
+    RESULT: 'RESULT'
   }
 
   export const InfoSubTab = {
@@ -450,16 +305,11 @@
 </script>
 
 <script>
-  import { usePage } from '../../utils/page'
-
-  import { UndirectedGraph } from '../../data/graph'
+  import { UndirectedGraph } from '../../../data/graph'
   import {
     readCamelCase,
     writeCamelCase
-  } from '../../utils/string'
-  import { getSearchParams } from '../../utils/location'
-
-  const page = usePage()
+  } from '../../../utils/string'
 
   let titleInput
 
@@ -470,104 +320,14 @@
   let currentNode = null
   let currentEdge = null
 
-  let newNodeAttribute = createAttribute()
-  let addNodeAttributeErrorMsg = ''
-  let newEdgeAttribute = createAttribute()
-  let addEdgeAttributeErrorMsg = ''
-
-  function createAttribute() {
-    return {
-      name: '',
-      type: 'string'
-    }
-  }
-
-  function addNodeAttribute() {
-    if (newNodeAttribute.name.match(/^\s*$/)) {
-      addNodeAttributeErrorMsg = 'attribute name is required'
-    } else if (graph.hasNodeAttribute(newNodeAttribute)) {
-      addNodeAttributeErrorMsg = 'attribute name already exists'
-    } else {
-      addNodeAttributeErrorMsg = ''
-      newNodeAttribute.name = writeCamelCase(
-        newNodeAttribute.name
-      )
-      graph.addNodeAttribute(newNodeAttribute)
-      graph = graph
-
-      newNodeAttribute = createAttribute()
-    }
-  }
-
-  function removeNodeAttribute(attr) {
-    graph.removeNodeAttribute(attr)
-    update()
-  }
-
-  function addEdgeAttribute() {
-    if (newEdgeAttribute.name.match(/^\s*$/)) {
-      addEdgeAttributeErrorMsg = 'attribute name is required'
-    } else if (graph.hasEdgeAttribute(newEdgeAttribute)) {
-      addEdgeAttributeErrorMsg = 'attribute name already exists'
-    } else {
-      addEdgeAttributeErrorMsg = ''
-      newEdgeAttribute.name = writeCamelCase(
-        newEdgeAttribute.name
-      )
-      graph.addEdgeAttribute(newEdgeAttribute)
-      update()
-
-      newEdgeAttribute = createAttribute()
-    }
-  }
-  function removeEdgeAttribute() {
-    graph.removeEdgeAttribute(attr)
-    update()
-  }
-
-  function showAttributeDefaultValue(attr) {
-    return attr.defaultValue || ''
-  }
-
-  function setAttributeDefaultValue(attr, value) {
-    let formattedValue
-
-    try {
-      if (attr.type === 'float') {
-        formattedValue = parseFloat(value)
-      } else if (attr.type === 'int') {
-        formattedValue = parseInt(value)
-      } else {
-        formattedValue = value
-      }
-
-      attr.defaultValue = formattedValue
-
-      newEdgeAttribute = newEdgeAttribute
-      newNodeAttribute = newNodeAttribute
-    } catch (error) {
-      throw error
-    }
-  }
-
   export function update() {
     graph = graph
     currentNode = currentNode
     currentEdge = currentEdge
   }
 
-  export function focusTitle() {
-    if (titleInput) {
-      titleInput.focus()
-    }
-  }
-
   export function isInfoTabActive() {
     return tab === Tab.INFO
-  }
-
-  export function isActionsTabActive() {
-    return tab === Tab.ACTIONS
   }
 
   export function isDefaultInfoActive() {
@@ -605,72 +365,7 @@
     tab = Tab.INFO
   }
 
-  export function showActions() {
-    tab = Tab.ACTIONS
-  }
-
-  function setAttribute(target, attr, value) {
-    let formattedValue
-
-    if (attr.editable !== undefined && !attr.editable) {
-      return
-    }
-
-    try {
-      if (attr.type === 'float') {
-        formattedValue = parseFloat(value)
-      } else if (attr.type === 'int') {
-        formattedValue = parseInt(value)
-      } else {
-        formattedValue = value
-      }
-
-      target[attr.name] = formattedValue
-
-      if (attr.name === 'title') {
-        update()
-      }
-
-      currentNode = currentNode
-      currentEdge = currentEdge
-    } catch (error) {
-      throw error
-    }
-  }
-
-  function showAttribute(target, attr) {
-    const displayValue = target[attr.name]
-
-    if (attr.name === 'sourceId') {
-      return target.source.id
-    }
-
-    if (attr.name === 'targetId') {
-      return target.target.id
-    }
-
-    if (attr.type === 'object') {
-      return JSON.stringify(displayValue)
-    } else if (attr.type === 'string') {
-      return displayValue || attr.defaultValue || ''
-    } else {
-      return displayValue || attr.defaultValue
-    }
-  }
-
-  function gotoPageRank() {
-    const params = getSearchParams()
-
-    if (params.id) {
-      page(`/algo/page-rank?id=${params.id}`)
-    }
-  }
-
-  function gotoHits() {
-    const params = getSearchParams()
-
-    if (params.id) {
-      page(`/algo/hits?id=${params.id}`)
-    }
+  export function showResult() {
+    tab = Tab.RESULT
   }
 </script>

@@ -30,20 +30,14 @@ $ yarn
 
 ## Start the Server
 
-To start the development server and web front-end build run the following command:
+To start the web auto-build process:
 
 ```bash
-$ yarn dev
+$ yarn web:autobuild
 ```
 
-To start development server and web front-end build individually. Run the development server:
+To start the web development server:
 
 ```bash
 $ yarn server:dev
-```
-
-Alongside with web build watch:
-
-```bash
-$ yarn web:dev
 ```

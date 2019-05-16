@@ -1,6 +1,7 @@
 import { GraphType } from './graph'
 
 const defaultGraph = {
+  title: 'Untitled',
   nodes: [],
   edges: [],
   nodeAttributes: [],
@@ -8,8 +9,9 @@ const defaultGraph = {
 }
 
 export class DirectedGraph {
-  constructor(graph) {
+  constructor(graph = defaultGraph) {
     this.type = GraphType.DIRECTED_GRAPH
+    this.title = graph.title || defaultGraph.title
 
     this.nodeReservedAttributes = [
       { type: 'string', name: 'id', editable: false },
@@ -30,6 +32,7 @@ export class DirectedGraph {
         hidden: true,
         editable: false
       },
+      { type: 'float', name: 'radius', editable: false },
       { type: 'boolean', name: 'selected', editable: false },
       { type: 'number', name: 'edgeCount', editable: false },
       {
@@ -234,7 +237,9 @@ export class DirectedGraph {
   }
 
   removeNode(node) {
-    const nodeIndex = this.nodes.findIndex(n => n.id === node.id)
+    const nodeIndex = this.nodes.findIndex(
+      n => n.id === node.id
+    )
 
     if (nodeIndex !== -1) {
       this.removeNodeIncidentEdges(node)

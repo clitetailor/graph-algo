@@ -1,6 +1,7 @@
 import { GraphType } from './graph'
 
 const defaultGraph = {
+  title: 'Untitled',
   nodes: [],
   edges: [],
   nodeAttributes: [],
@@ -10,6 +11,7 @@ const defaultGraph = {
 export class UndirectedGraph {
   constructor(graph = defaultGraph) {
     this.type = GraphType.UNDIRECTED_GRAPH
+    this.title = graph.title || defaultGraph.title
 
     this.nodeReservedAttributes = [
       { type: 'string', name: 'id', editable: false },
@@ -30,6 +32,7 @@ export class UndirectedGraph {
         hidden: true,
         editable: false
       },
+      { type: 'float', name: 'radius', editable: false },
       { type: 'boolean', name: 'selected', editable: false },
       {
         type: 'int',
@@ -83,6 +86,7 @@ export class UndirectedGraph {
 
   static fromJSON(json) {
     const graph = {}
+    graph.title = json.title
     graph.nodeAttributes = json.nodeAttributes
     graph.edgeAttributes = json.edgeAttributes
     graph.nodes = json.nodes.map(n => {
@@ -134,6 +138,7 @@ export class UndirectedGraph {
   toJSON() {
     const graph = {}
     graph.type = this.type
+    graph.title = this.title
     graph.nodeAttributes = this.nodeAttributes.map(attr => {
       return {
         type: attr.type,
@@ -229,7 +234,9 @@ export class UndirectedGraph {
   }
 
   removeNode(node) {
-    const nodeIndex = this.nodes.findIndex(n => n.id === node.id)
+    const nodeIndex = this.nodes.findIndex(
+      n => n.id === node.id
+    )
 
     if (nodeIndex !== -1) {
       this.removeNodeIncidentEdges(node)

@@ -212,7 +212,7 @@
 
   import {
     createSimulation,
-    updateSimulation as _updateSimulation
+    updateSimulation
   } from './simulation'
   import {
     GraphType,
@@ -234,6 +234,9 @@
   let offsetY = 0
   let scale = 1
 
+  export let pagerank = false
+  export let hits = false
+
   export let mode = Mode.SELECT
   let currentMode = mode
   let isModeLocked = false
@@ -241,7 +244,7 @@
   let draggingNode = undefined
   let isSvgDragging = false
 
-  let graph = new UndirectedGraph()
+  export let graph = new UndirectedGraph()
 
   let simulation
 
@@ -254,29 +257,8 @@
     updateMode()
   })
 
-  export let onUpdate = function() {}
-
-  export function setGraph(newGraph) {
-    graph = newGraph
-  }
-
-  export function getGraph() {
-    return graph
-  }
-
-  function setupSimulation() {
-    simulation = createSimulation({
-      radius
-    })
-    updateSimulation()
-    simulation.on('tick', () => {
-      updateGraph()
-    })
-  }
-
-  function setupSvgOffset() {
-    offsetX = svg.clientWidth / 2
-    offsetY = svg.clientHeight / 2
+  function restartSimulation() {
+    updateSimulation(simulation, graph)
   }
 
   function updateMode() {
@@ -287,17 +269,27 @@
     }
   }
 
-  function updateSimulation() {
-    _updateSimulation(simulation, graph)
-  }
-
   function updateGraph() {
     graph = graph
-    onUpdate()
   }
 
   export function update() {
-    graph = graph
+    updateGraph()
+  }
+
+  function setupSimulation() {
+    simulation = createSimulation({
+      radius
+    })
+    restartSimulation()
+    simulation.on('tick', () => {
+      update()
+    })
+  }
+
+  function setupSvgOffset() {
+    offsetX = svg.clientWidth / 2
+    offsetY = svg.clientHeight / 2
   }
 
   function getEdgeMarker(edge) {
@@ -346,6 +338,7 @@
   }
 
   export let onSvgClick = function() {}
+
   function _onSvgClick(event) {
     if (
       !event.target.closest('.c-node') &&
@@ -354,7 +347,7 @@
       onSvgClick(event)
 
       graph.deselectAll()
-      updateGraph()
+      update()
     }
 
     switch (mode) {
@@ -365,8 +358,8 @@
             mouseCoordinates.x,
             mouseCoordinates.y
           )
-          updateSimulation()
-          updateGraph()
+          restartSimulation()
+          update()
         }
         break
     }
@@ -397,15 +390,15 @@
           } else {
             graph.deselectAll()
           }
-          updateGraph()
+          update()
           break
 
         case Mode.NODE:
           if (event.altKey) {
             graph.removeNode(node)
-            updateSimulation()
+            restartSimulation()
           }
-          updateGraph()
+          update()
           break
 
         case Mode.LINE:
@@ -418,16 +411,16 @@
             } else {
               graph.addEdge(lastSelectedNode, node)
               graph.deselectAll()
-              updateSimulation()
+              restartSimulation()
             }
           }
-          updateGraph()
+          update()
           break
 
         case Mode.REMOVE:
           graph.removeNode(node)
-          updateSimulation()
-          updateGraph()
+          restartSimulation()
+          update()
           break
 
         default:
@@ -437,14 +430,14 @@
   }
 
   function onNodeDrag(node) {
-    updateSimulation(0.6)
+    restartSimulation(0.6)
 
     const mouseCoordinates = getMouseCoordinates(event)
 
     draggingNode.fx = mouseCoordinates.x
     draggingNode.fy = mouseCoordinates.y
 
-    updateGraph()
+    update()
   }
 
   function onNodeDragStart(node) {
@@ -455,7 +448,7 @@
         isModeLocked = true
         draggingNode = node
 
-        updateGraph()
+        update()
       }
     }
   }
@@ -468,7 +461,7 @@
     isNodeDragging = false
     isModeLocked = false
 
-    updateGraph()
+    update()
   }
 
   function onNodeMouseDown(node) {
@@ -490,23 +483,21 @@
           } else {
             graph.deselectAll()
           }
-
-          updateGraph()
+          update()
           break
 
         case Mode.LINE:
           if (event.altKey) {
             graph.removeEdge(edge)
-            updateSimulation()
-
-            updateGraph()
+            restartSimulation()
+            update()
           }
           break
 
         case Mode.REMOVE:
           graph.removeEdge(edge)
-          updateSimulation()
-          updateGraph()
+          restartSimulation()
+          update()
 
         default:
           break
