@@ -61,7 +61,32 @@
     </div>
     <!--  -->
     {:else if isDefaultInfoActive()}
-    <div class="o-tabs__panel"></div>
+    <div class="o-tabs__panel">
+      <div class="c-group">
+        <div class="c-group__title">
+          ranks
+        </div>
+        <div class="c-group__list">
+          <div class="c-field">
+            <table class="c-table">
+              <tr>
+                <th>Rank</th>
+                <th>ID</th>
+                <th>Percentage</th>
+              </tr>
+              {#each graph.nodes.sort((a, b) => b.percentage -
+              a.percentage) as node, i}
+              <tr on:click="{_onNodeClick(node)}">
+                <td>{i + 1}</td>
+                <td>{node.title || node.id}</td>
+                <td>{node.percentage}%</td>
+              </tr>
+              {/each}
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
     {:else if isNodeInfoActive()}
     <div class="o-tabs__panel">
       <div class="c-group">
@@ -280,6 +305,41 @@
     font-weight: bold;
     color: hsl(0, 0%, 40%);
   }
+
+  table.c-table {
+    width: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  table.c-table,
+  .c-table th,
+  .c-table td {
+    border: 1px solid hsl(0, 0%, 80%);
+    border-collapse: collapse;
+  }
+
+  .c-table th,
+  .c-table td {
+    padding: 8px;
+    text-align: left;
+  }
+
+  table.c-table tr {
+    cursor: pointer;
+  }
+
+  table.c-table tr:nth-child(even) {
+    background-color: hsl(0, 0%, 90%);
+  }
+
+  table.c-table tr:nth-child(odd) {
+    background-color: hsl(0, 0%, 100%);
+  }
+
+  table.c-table th {
+    background-color: black;
+    color: white;
+  }
 </style>
 
 <script context="module">
@@ -307,6 +367,7 @@
   let titleInput
 
   let pageRankProcessed = false
+  let pageRankResult = {}
   let dampingFactor = 0.75
   let precision = 0.001
   let loop = 10
@@ -369,6 +430,18 @@
     tab = Tab.RESULT
   }
 
+  export let onNodeClick = function() {
+    return function() {}
+  }
+  function _onNodeClick(node) {
+    return event => {
+      onNodeClick(node)(event)
+      graph.selectNode(node)
+
+      graph = graph
+    }
+  }
+
   function setAttribute(target, attr, value) {
     let formattedValue
 
@@ -426,18 +499,18 @@
       graph: graph.toJSON()
     }
 
-    const result = await processPageRank(data)
+    pageRankResult = await processPageRank(data)
 
     pageRankProcessed = true
 
     graph.nodes.forEach((node, i) => {
       node.radius = caculateRadius(
-        result.pagerank.data[i],
+        pageRankResult.pagerank.data[i],
         30,
         150
       )
-      node.percentage = (result.pagerank.data[i] * 100).toFixed(
-        2
+      node.percentage = parseFloat(
+        (pageRankResult.pagerank.data[i] * 100).toFixed(2)
       )
     })
     graph = graph

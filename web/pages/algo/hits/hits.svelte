@@ -26,6 +26,7 @@
     <Sidebar
       bind:this="{sidebar}"
       bind:graph="{graph}"
+      onNodeClick="{onNodeClick}"
       restartSimulation="{() => graphViewer.restartSimulation()}"
     ></Sidebar>
   </div>

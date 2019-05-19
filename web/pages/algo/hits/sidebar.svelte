@@ -50,7 +50,51 @@
     </div>
     <!--  -->
     {:else if isDefaultInfoActive()}
-    <div class="o-tabs__panel"></div>
+    <div class="o-tabs__panel">
+      <div class="c-group">
+        <div class="c-group__title">hubs</div>
+        <div class="c-group__list">
+          <table class="c-table">
+            <tr>
+              <th>Rank</th>
+              <th>Title</th>
+              <th>Percentage</th>
+            </tr>
+            {#each graph.nodes.filter(node =>
+            node.isHub).sort((a, b) => b.percentage -
+            a.percentage) as node, i}
+            <tr on:click="{_onNodeClick(node)}">
+              <td>{i + 1}</td>
+              <td>{node.title || node.id}</td>
+              <td>{node.percentage}%</td>
+            </tr>
+            {/each}
+          </table>
+        </div>
+      </div>
+
+      <div class="c-group">
+        <div class="c-group__title">auths</div>
+        <div class="c-group__list">
+          <table class="c-table">
+            <tr>
+              <th>Rank</th>
+              <th>Title</th>
+              <th>Percentage</th>
+            </tr>
+            {#each graph.nodes.filter(node =>
+            node.isAuth).sort((a, b) => b.percentage -
+            a.percentage) as node, i}
+            <tr on:click="{onNodeClick(node)}">
+              <td>{i + 1}</td>
+              <td>{node.title || node.id}</td>
+              <td>{node.percentage}%</td>
+            </tr>
+            {/each}
+          </table>
+        </div>
+      </div>
+    </div>
     {:else if isNodeInfoActive()}
     <div class="o-tabs__panel">
       <div class="c-group">
@@ -269,6 +313,41 @@
     font-weight: bold;
     color: hsl(0, 0%, 40%);
   }
+
+  table.c-table {
+    width: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  table.c-table,
+  .c-table th,
+  .c-table td {
+    border: 1px solid hsl(0, 0%, 80%);
+    border-collapse: collapse;
+  }
+
+  .c-table th,
+  .c-table td {
+    padding: 8px;
+    text-align: left;
+  }
+
+  table.c-table tr {
+    cursor: pointer;
+  }
+
+  table.c-table tr:nth-child(even) {
+    background-color: hsl(0, 0%, 90%);
+  }
+
+  table.c-table tr:nth-child(odd) {
+    background-color: hsl(0, 0%, 100%);
+  }
+
+  table.c-table th {
+    background-color: black;
+    color: white;
+  }
 </style>
 
 <script context="module">
@@ -292,6 +371,8 @@
     readCamelCase,
     writeCamelCase
   } from '../../../utils/string'
+
+  document.getGraph = () => graph
 
   let titleInput
 
@@ -356,6 +437,18 @@
 
   export function showResult() {
     tab = Tab.RESULT
+  }
+
+  export let onNodeClick = function() {
+    return function() {}
+  }
+  function _onNodeClick(node) {
+    return event => {
+      onNodeClick(node)(event)
+      graph.selectNode(node)
+
+      graph = graph
+    }
   }
 
   function setAttribute(target, attr, value) {
