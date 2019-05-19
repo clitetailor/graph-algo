@@ -74,6 +74,7 @@ export class DirectedGraph {
 
   static fromJSON(json) {
     const graph = {}
+    graph.title = json.title
     graph.nodeAttributes = json.nodeAttributes
     graph.edgeAttributes = json.edgeAttributes
     graph.nodes = json.nodes.map(n => {
@@ -141,6 +142,7 @@ export class DirectedGraph {
   toJSON() {
     const graph = {}
     graph.type = this.type
+    graph.title = this.title
     graph.nodeAttributes = this.nodeAttributes.map(attr => {
       return {
         type: attr.type,

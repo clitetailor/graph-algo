@@ -12,11 +12,15 @@ export function drawLine(edge, radius) {
   }
   const normVec = normalize(distVec)
 
-  source.x = edge.source.x + normVec.x * radius
-  source.y = edge.source.y + normVec.y * radius
+  source.x =
+    edge.source.x + normVec.x * (edge.source.radius || radius)
+  source.y =
+    edge.source.y + normVec.y * (edge.source.radius || radius)
 
-  target.x = edge.target.x - normVec.x * radius
-  target.y = edge.target.y - normVec.y * radius
+  target.x =
+    edge.target.x - normVec.x * (edge.target.radius || radius)
+  target.y =
+    edge.target.y - normVec.y * (edge.target.radius || radius)
 
   return `
     M ${source.x} ${source.y}
@@ -48,9 +52,16 @@ export function caculateCurve(edge, radius) {
     y: edge.target.y - edge.source.y
   })
 
-  const multiplied = mulitply(normVec, radius)
-  const leftRadian = rotate(multiplied, 20)
-  const rightRadian = rotate(multiplied, 160)
+  const multipliedLeftRadius = multiply(
+    normVec,
+    edge.source.radius || radius
+  )
+  const multipliedRightRadius = multiply(
+    normVec,
+    edge.target.radius || radius
+  )
+  const leftRadian = rotate(multipliedLeftRadius, 20)
+  const rightRadian = rotate(multipliedRightRadius, 160)
 
   source.x = edge.source.x + leftRadian.x
   source.y = edge.source.y + leftRadian.y
@@ -58,7 +69,19 @@ export function caculateCurve(edge, radius) {
   target.x = edge.target.x + rightRadian.x
   target.y = edge.target.y + rightRadian.y
 
-  const prepVec = rotate(mulitply(multiplied, 1.5), 90)
+  const prepVec = rotate(
+    multiply(
+      {
+        x:
+          (multipliedLeftRadius.x + multipliedRightRadius.x) /
+          2,
+        y:
+          (multipliedLeftRadius.y + multipliedRightRadius.y) / 2
+      },
+      1.5
+    ),
+    90
+  )
 
   mid.x = (source.x + target.x) / 2 + prepVec.x
   mid.y = (source.y + target.y) / 2 + prepVec.y
@@ -70,7 +93,17 @@ export function caculateCurve(edge, radius) {
   }
 }
 
-export function mulitply(vec, number) {
+export function caculateHitsNodeBackground(node) {
+  if (node.isAuth) {
+    return 'hsl(158, 100%, 50%)'
+  }
+
+  if (node.isHub) {
+    return 'hsl(201, 100%, 50%)'
+  }
+}
+
+export function multiply(vec, number) {
   return {
     x: vec.x * number,
     y: vec.y * number

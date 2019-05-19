@@ -99,15 +99,19 @@
     if (params.id) {
       const loadedGraph = await loadGraph(params.id)
 
-      if (graph.type === GraphType.UNDIRECTED_GRAPH) {
+      if (loadedGraph.type === GraphType.UNDIRECTED_GRAPH) {
         graph = UndirectedGraph.fromJSON(loadedGraph)
       } else {
         graph = DirectedGraph.fromJSON(loadedGraph)
       }
     } else if (params.type === 'undirected-graph') {
-      graph = new UndirectedGraph()
+      setTimeout(() => {
+        graph = new UndirectedGraph()
+      }, 0)
     } else {
-      graph = new DirectedGraph()
+      setTimeout(() => {
+        graph = new DirectedGraph()
+      }, 0)
     }
   })
 

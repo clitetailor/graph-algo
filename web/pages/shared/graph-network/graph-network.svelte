@@ -108,9 +108,11 @@
         <circle
           cx="{node.x}"
           cy="{node.y}"
-          r="{radius}"
+          r="{node.radius || radius}"
+          style="{hits ? `fill: ${caculateHitsNodeBackground(node)}` : ''}"
         ></circle>
         <text
+          class="c-node__title"
           x="{node.x}"
           y="{node.y}"
           text-anchor="middle"
@@ -118,6 +120,17 @@
         >
           {node.title || node.id}
         </text>
+        {#if node.percentage}
+        <text
+          class="c-node__percentage"
+          x="{node.x}"
+          y="{node.y + 14}"
+          text-anchor="middle"
+          alignment-baseline="middle"
+        >
+          {node.percentage}%
+        </text>
+        {/if}
       </g>
       {/each}
     </g>
@@ -145,6 +158,15 @@
   .c-node text {
     font-family: Arial, Helvetica, sans-serif;
     fill: black;
+  }
+
+  .c-node__title {
+    font-weight: bold;
+    font-size: 14px;
+  }
+
+  .c-node__percentage {
+    font-size: 12px;
   }
 
   .c-node.is-selected circle {
@@ -224,7 +246,8 @@
     drawLine,
     lineCenter,
     curveCenter,
-    caculateCurve
+    caculateCurve,
+    caculateHitsNodeBackground
   } from './draw'
 
   let svg
@@ -257,7 +280,7 @@
     updateMode()
   })
 
-  function restartSimulation() {
+  export function restartSimulation() {
     updateSimulation(simulation, graph)
   }
 

@@ -12,6 +12,9 @@
       bind:this="{graphViewer}"
       bind:mode="{mode}"
       bind:graph="{graph}"
+      onSvgClick="{onSvgClick}"
+      onNodeClick="{onNodeClick}"
+      onEdgeClick="{onEdgeClick}"
     ></GraphNetwork>
     <div class="c-page-rank__menu">
       <Menu onBack="{onBack}"></Menu>
@@ -22,6 +25,7 @@
     <Sidebar
       bind:this="{sidebar}"
       bind:graph="{graph}"
+      restartSimulation="{() => graphViewer.restartSimulation()}"
     ></Sidebar>
   </div>
 </div>
@@ -100,7 +104,7 @@
     if (params.id) {
       const loadedGraph = await loadGraph(params.id)
 
-      if (graph.type === GraphType.UNDIRECTED_GRAPH) {
+      if (loadedGraph.type === GraphType.UNDIRECTED_GRAPH) {
         graph = UndirectedGraph.fromJSON(loadedGraph)
       } else {
         graph = DirectedGraph.fromJSON(loadedGraph)

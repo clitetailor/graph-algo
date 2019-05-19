@@ -6,6 +6,7 @@ const winston = require('winston')
 const history = require('connect-history-api-fallback')
 const http = require('http')
 const path = require('path')
+const proxy = require('express-http-proxy')
 
 const { graphqlSchema } = require('./schema')
 const { configureLogging } = require('./config/logging')
@@ -18,7 +19,10 @@ configureDotEnv()
 const app = express()
 const httpServer = http.createServer(app)
 
+app.use('/process', proxy('http://localhost:6001'))
+
 app.use(cors())
+app.use(bodyParser.text())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 

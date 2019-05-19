@@ -10,22 +10,11 @@
   </div>
 
   <div class="c-sidebar__tabs o-tabs">
-    {#if !pageRankProcessed}
+    {#if !hitsProcessed}
     <div class="o-tabs__panel">
       <div class="c-group">
         <div class="c-group__title">input data</div>
         <div class="c-group__list">
-          <div class="c-field">
-            <div class="c-field__label">damping factor</div>
-            <div class="c-field__input">
-              <input
-                type="text"
-                class="c-input o-input"
-                bind:value="{dampingFactor}"
-              />
-            </div>
-          </div>
-
           <div class="c-field">
             <div class="c-field__label">precision</div>
             <div class="c-field__input">
@@ -51,7 +40,7 @@
           <div class="c-field c-field--button">
             <button
               class="o-button o-button--active"
-              on:click="{triggerPageRank}"
+              on:click="{triggerHits}"
             >
               Process
             </button>
@@ -297,7 +286,7 @@
 
 <script>
   import { caculateRadius } from '../draw'
-  import { processPageRank } from '../../../ajax/algo'
+  import { processHits } from '../../../ajax/algo'
   import { UndirectedGraph } from '../../../data/graph'
   import {
     readCamelCase,
@@ -306,7 +295,7 @@
 
   let titleInput
 
-  let pageRankProcessed = false
+  let hitsProcessed = false
   let dampingFactor = 0.75
   let precision = 0.001
   let loop = 10
@@ -418,27 +407,36 @@
     }
   }
 
-  export async function triggerPageRank() {
+  export async function triggerHits() {
     const data = {
-      dampingFactor,
       precision,
       loop,
       graph: graph.toJSON()
     }
 
-    const result = await processPageRank(data)
+    const result = await processHits(data)
 
-    pageRankProcessed = true
+    hitsProcessed = true
+
+    const hubSum = result.hubs.data.reduce((a, b) => a + b, 0)
+    const authSum = result.auth.data.reduce((a, b) => a + b, 0)
 
     graph.nodes.forEach((node, i) => {
-      node.radius = caculateRadius(
-        result.pagerank.data[i],
-        30,
-        150
-      )
-      node.percentage = (result.pagerank.data[i] * 100).toFixed(
-        2
-      )
+      if (result.hubs.data[i] > 0) {
+        const portion = result.hubs.data[i] / hubSum
+
+        node.radius = caculateRadius(portion, 30, 80)
+        node.isHub = true
+        node.percentage = (portion * 100).toFixed(2)
+      }
+
+      if (result.auth.data[i] > 0) {
+        const portion = result.auth.data[i] / authSum
+
+        node.radius = caculateRadius(portion, 30, 80)
+        node.isAuth = true
+        node.percentage = (portion * 100).toFixed(2)
+      }
     })
     graph = graph
     restartSimulation()

@@ -246,9 +246,6 @@ export class UndirectedGraph {
   }
 
   removeNodeIncidentEdges(node) {
-    console.log(...this.edges)
-    console.log(node)
-
     this.edges = this.edges.filter(
       e => e.source.id !== node.id && e.target.id !== node.id
     )
