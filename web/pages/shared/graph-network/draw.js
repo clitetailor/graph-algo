@@ -121,6 +121,13 @@ export function rotate(vec, angle) {
 export function normalize(vec) {
   const dist = Math.sqrt(vec.x * vec.x + vec.y * vec.y)
 
+  if (dist === 0) {
+    return {
+      x: 0,
+      y: 0
+    }
+  }
+
   return {
     x: vec.x / dist,
     y: vec.y / dist

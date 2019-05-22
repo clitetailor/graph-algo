@@ -6,15 +6,20 @@
   <div class="c-edit__main">
     <GraphNetwork
       mode="{mode}"
-      bind:this="{graphViewer}"
       bind:mode="{mode}"
+      bind:this="{graphViewer}"
       bind:graph="{graph}"
       onSvgClick="{onSvgClick}"
       onNodeClick="{onNodeClick}"
       onEdgeClick="{onEdgeClick}"
     ></GraphNetwork>
     <div class="c-edit__menu">
-      <Menu onBack="{onBack}" onSave="{onSave}"></Menu>
+      <Menu
+        onBack="{onBack}"
+        onSave="{onSave}"
+        onDownload="{onDownload}"
+        onUpload="{onUpload}"
+      ></Menu>
     </div>
   </div>
 
@@ -58,7 +63,7 @@
 </style>
 
 <script>
-  import { onMount } from 'svelte'
+  import { onMount, tick } from 'svelte'
 
   import Toolbar from './toolbar.svelte'
   import Sidebar from './sidebar.svelte'
@@ -85,13 +90,20 @@
     DirectedGraph,
     GraphType
   } from '../../data/graph'
+  import { downloadGraphML } from '../../ajax/download'
+  import { uploadGraphML } from '../../ajax/upload'
+  import { interval } from '../../utils/time'
 
-  let graphViewer
   let sidebar
+  let graphViewer
   let mode = Mode.SELECT
   let graph = new UndirectedGraph()
 
   const page = usePage()
+
+  interval(() => {
+    onSave()
+  }, 60 * 1000)
 
   onMount(async () => {
     const params = getSearchParams()
@@ -105,14 +117,14 @@
         graph = DirectedGraph.fromJSON(loadedGraph)
       }
     } else if (params.type === 'undirected-graph') {
-      setTimeout(() => {
-        graph = new UndirectedGraph()
-      }, 0)
+      await tick()
+      graph = new UndirectedGraph()
     } else {
-      setTimeout(() => {
-        graph = new DirectedGraph()
-      }, 0)
+      await tick()
+      graph = new DirectedGraph()
     }
+    
+    graphViewer.restartSimulation()
   })
 
   function onBack() {
@@ -132,6 +144,37 @@
       }
     } catch (error) {
       throw error
+    }
+  }
+
+  function onDownload() {
+    downloadGraphML(graph.toJSON())
+  }
+
+  function onUpload(event) {
+    const reader = new FileReader()
+
+    const file =
+      event.target &&
+      event.target.files &&
+      event.target.files[0]
+
+    reader.onload = async readerEvent => {
+      const graphml = readerEvent.target.result
+
+      let loadedGraph = await uploadGraphML(graphml)
+
+      if (loadedGraph.type === GraphType.UNDIRECTED_GRAPH) {
+        graph = UndirectedGraph.fromJSON(loadedGraph)
+      } else {
+        graph = DirectedGraph.fromJSON(loadedGraph)
+      }
+
+    }
+    graphViewer.restartSimulation()
+
+    if (file) {
+      const graphml = reader.readAsText(file)
     }
   }
 

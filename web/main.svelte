@@ -1,4 +1,11 @@
 <svelte:component this="{comp}"></svelte:component>
+<a class="c-downloader" id="downloader" href="/"></a>
+
+<style>
+  .c-downloader {
+    visibility: hidden;
+  }
+</style>
 
 <script>
   import { usePage } from './utils/page'

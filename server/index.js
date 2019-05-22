@@ -8,6 +8,7 @@ const http = require('http')
 const path = require('path')
 const proxy = require('express-http-proxy')
 
+const { router } = require('./router')
 const { graphqlSchema } = require('./schema')
 const { configureLogging } = require('./config/logging')
 const { configureDotEnv } = require('./config/dotenv')
@@ -25,6 +26,8 @@ app.use(cors())
 app.use(bodyParser.text())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
+
+app.use(router)
 
 const server = new ApolloServer({
   schema: graphqlSchema,

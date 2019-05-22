@@ -40,8 +40,8 @@
 
   .c-card {
     padding: 20px;
-    border: 1px solid hsl(0, 0%, 80%);
-    color: hsl(0, 0%, 80%);
+    border: 1px solid hsl(0, 0%, 60%);
+    color: hsl(0, 0%, 60%);
     border-radius: 5px;
     display: flex;
     flex-flow: column nowrap;

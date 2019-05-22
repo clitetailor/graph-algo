@@ -81,8 +81,8 @@ export class DirectedGraph {
       return {
         id: n.id,
         title: n.title,
-        x: n.x,
-        y: n.y,
+        x: n.x || 0,
+        y: n.y || 0,
         vx: 0,
         vy: 0,
         selected: false,
@@ -198,7 +198,9 @@ export class DirectedGraph {
 
   resetCounter() {
     for (const node of this.nodes) {
-      const idN = parseInt(node.id)
+      const matchGroup = node.id && node.id.match(/([0-9]+)/)
+
+      const idN = parseInt((matchGroup && matchGroup[0]) || 0)
 
       if (idN > this.counter) {
         this.counter = idN
@@ -401,7 +403,7 @@ export class DirectedGraph {
     )
   }
 
-  hasEdgeAttribute() {
+  hasEdgeAttribute(attr) {
     return (
       this.edgeAttributes.find(a => a.name === attr.name) ||
       this.edgeReservedAttributes.find(

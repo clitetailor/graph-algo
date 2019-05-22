@@ -6,8 +6,6 @@ const anyResolvers = {
     name: 'Any',
 
     parseValue(value) {
-      console.log('parseValue', typeof value, value)
-
       if (
         typeof value === 'string' ||
         typeof value === 'number' ||

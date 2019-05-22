@@ -152,7 +152,7 @@
   const subscriptions = {}
 
   onMount(async () => {
-    graphInfos = (await getGraphInfos()).reverse()
+    graphInfos = await getGraphInfos()
 
     subscriptions.graphAdded = graphAdded().subscribe(g => {
       graphInfos.unshift(g)
