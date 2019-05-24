@@ -60,13 +60,12 @@
               <th>Title</th>
               <th>Percentage</th>
             </tr>
-            {#each graph.nodes.filter(node =>
-            node.isHub).sort((a, b) => b.percentage -
-            a.percentage) as node, i}
+            {#each graph.nodes.sort((a, b) => b.hub - a.hub) as
+            node, i}
             <tr on:click="{_onNodeClick(node)}">
               <td>{i + 1}</td>
               <td>{node.title || node.id}</td>
-              <td>{node.percentage}%</td>
+              <td>{node.hub}%</td>
             </tr>
             {/each}
           </table>
@@ -82,13 +81,12 @@
               <th>Title</th>
               <th>Percentage</th>
             </tr>
-            {#each graph.nodes.filter(node =>
-            node.isAuth).sort((a, b) => b.percentage -
-            a.percentage) as node, i}
+            {#each graph.nodes.sort((a, b) => b.auth - a.auth)
+            as node, i}
             <tr on:click="{onNodeClick(node)}">
               <td>{i + 1}</td>
               <td>{node.title || node.id}</td>
-              <td>{node.percentage}%</td>
+              <td>{node.auth}%</td>
             </tr>
             {/each}
           </table>
@@ -376,7 +374,7 @@
 
   let titleInput
 
-  let hitsProcessed = false
+  export let hitsProcessed = false
   let dampingFactor = 0.75
   let precision = 0.001
   let loop = 10
@@ -515,21 +513,15 @@
     const authSum = result.auth.data.reduce((a, b) => a + b, 0)
 
     graph.nodes.forEach((node, i) => {
-      if (result.hubs.data[i] > 0) {
-        const portion = result.hubs.data[i] / hubSum
+      const hubPortion = result.hubs.data[i] / hubSum
 
-        node.radius = caculateRadius(portion, 30, 80)
-        node.isHub = true
-        node.percentage = (portion * 100).toFixed(2)
-      }
+      node.radius = caculateRadius(hubPortion, 30, 80)
+      node.hub = (hubPortion * 100).toFixed(2)
 
-      if (result.auth.data[i] > 0) {
-        const portion = result.auth.data[i] / authSum
+      const authPortion = result.auth.data[i] / authSum
 
-        node.radius = caculateRadius(portion, 30, 80)
-        node.isAuth = true
-        node.percentage = (portion * 100).toFixed(2)
-      }
+      node.radius = caculateRadius(authPortion, 30, 80)
+      node.auth = (authPortion * 100).toFixed(2)
     })
     graph = graph
     restartSimulation()

@@ -12,7 +12,7 @@
       bind:this="{graphViewer}"
       bind:mode="{mode}"
       bind:graph="{graph}"
-      hits="{true}"
+      hits="{hitsProcessed}"
       onSvgClick="{onSvgClick}"
       onNodeClick="{onNodeClick}"
       onEdgeClick="{onEdgeClick}"
@@ -26,6 +26,7 @@
     <Sidebar
       bind:this="{sidebar}"
       bind:graph="{graph}"
+      bind:hitsProcessed="{hitsProcessed}"
       onNodeClick="{onNodeClick}"
       restartSimulation="{() => graphViewer.restartSimulation()}"
     ></Sidebar>
@@ -49,6 +50,11 @@
     overflow: hidden;
     position: relative;
     background: hsl(0, 0%, 90%);
+    display: flex;
+  }
+
+  .c-hits__part {
+    float: auto;
   }
 
   .c-hits__menu {
@@ -99,6 +105,7 @@
   let toolbar
   let mode = Mode.SELECT
   let graph = new UndirectedGraph()
+  let hitsProcessed = false
 
   onMount(async () => {
     const params = getSearchParams()

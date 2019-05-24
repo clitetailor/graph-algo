@@ -109,8 +109,8 @@
           cx="{node.x}"
           cy="{node.y}"
           r="{node.radius || radius}"
-          style="{hits ? `fill: ${caculateHitsNodeBackground(node)}` : ''}"
         ></circle>
+        {#if !hits}
         <text
           class="c-node__title"
           x="{node.x}"
@@ -120,6 +120,18 @@
         >
           {node.title || node.id}
         </text>
+        {:else}
+        <text
+          class="c-node__title"
+          x="{node.x}"
+          y="{node.y - 14}"
+          text-anchor="middle"
+          alignment-baseline="middle"
+        >
+          {node.title || node.id}
+        </text>
+        {/if}
+        <!--  -->
         {#if node.percentage}
         <text
           class="c-node__percentage"
@@ -129,6 +141,30 @@
           alignment-baseline="middle"
         >
           {node.percentage}%
+        </text>
+        {/if}
+        <!--  -->
+        {#if hits && node.auth}
+        <text
+          class="c-node__percentage"
+          x="{node.x}"
+          y="{node.y}"
+          text-anchor="middle"
+          alignment-baseline="middle"
+        >
+          {node.auth}%
+        </text>
+        {/if}
+        <!--  -->
+        {#if hits && node.hub}
+        <text
+          class="c-node__percentage"
+          x="{node.x}"
+          y="{node.y + 14}"
+          text-anchor="middle"
+          alignment-baseline="middle"
+        >
+          {node.hub}%
         </text>
         {/if}
       </g>
