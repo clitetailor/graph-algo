@@ -30,6 +30,7 @@ Vagrant.configure("2") do |config|
   # via 127.0.0.1 to disable public access
   config.vm.network "forwarded_port", guest: 5432, host: 5432, host_ip: "127.0.0.1"
   config.vm.network "forwarded_port", guest: 6001, host: 6001, host_ip: "127.0.0.1"
+  config.vm.network "forwarded_port", guest: 4000, host: 4000, host_ip: "127.0.0.1"
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
@@ -69,7 +70,4 @@ Vagrant.configure("2") do |config|
   #   apt-get update
   #   apt-get install -y apache2
   # SHELL
-  config.vm.provision "shell", inline: <<-SHELL
-    /home/vagrant/link-analysis/build/server 0.0.0.0 6001 &
-  SHELL
 end

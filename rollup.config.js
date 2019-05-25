@@ -49,16 +49,18 @@ export default {
     commonjs(),
     production && terser(),
     copy({
-      'web/index.html': 'public/index.html',
-      'web/global.css': 'public/global.css',
-      'web/design.css': 'public/design.css',
-      'node_modules/material-design-lite/material.min.css':
-        'public/material-design-lite/material.min.css',
-      'node_modules/material-design-lite/material.min.js':
-        'public/material-design-lite/material.min.js',
-      'node_modules/material-design-icons/iconfont':
-        'public/fonts',
-      'web/assets': 'public/'
+      targets: {
+        'web/index.html': 'public/index.html',
+        'web/global.css': 'public/global.css',
+        'web/design.css': 'public/design.css',
+        'node_modules/material-design-lite/material.min.css':
+          'public/material-design-lite/material.min.css',
+        'node_modules/material-design-lite/material.min.js':
+          'public/material-design-lite/material.min.js',
+        'node_modules/material-design-icons/iconfont':
+          'public/fonts',
+        'web/assets': 'public/'
+      }
     })
   ]
 }
