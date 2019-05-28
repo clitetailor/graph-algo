@@ -1,5 +1,5 @@
 <div class="c-menu">
-  <div class="c-menu__icon" on:click="{onBack}">
+  <div class="c-menu__icon" on:click={onBack}>
     <i class="material-icons">arrow_back</i>
   </div>
 </div>

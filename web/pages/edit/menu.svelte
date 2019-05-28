@@ -1,20 +1,19 @@
 <div class="c-menu">
-  <div class="c-menu__icon" on:click="{beforeUpload}">
+  <div class="c-menu__icon" on:click={beforeUpload}>
     <input
       class="c-menu__hidden-input"
       type="file"
-      on:input="{onUpload}"
-      bind:this="{fileInput}"
-    />
+      on:input={onUpload}
+      bind:this={fileInput} />
     <i class="material-icons">attach_file</i>
   </div>
-  <div class="c-menu__icon" on:click="{onDownload}">
+  <div class="c-menu__icon" on:click={onDownload}>
     <i class="material-icons">move_to_inbox</i>
   </div>
-  <div class="c-menu__icon" on:click="{onSave}">
+  <div class="c-menu__icon" on:click={onSave}>
     <i class="material-icons">save</i>
   </div>
-  <div class="c-menu__icon" on:click="{onBack}">
+  <div class="c-menu__icon" on:click={onBack}>
     <i class="material-icons">arrow_back</i>
   </div>
 </div>

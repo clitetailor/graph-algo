@@ -2,39 +2,37 @@
   <div class="c-group__title">Recents</div>
   <div class="c-group__content c-list">
     {#each graphInfos as graphInfo}
-    <div class="c-list__item">
-      <div
-        class="c-list__item__icon"
-        class:is-orange="{graphInfo.type === GraphType.UNDIRECTED_GRAPH}"
-        class:is-purple="{graphInfo.type === GraphType.DIRECTED_GRAPH}"
-      >
-        <SvgImg src="/images/dashboard/graph.svg"></SvgImg>
-      </div>
-      <div class="c-list__item__content">
-        <div class="c-list__item__title">
-          {graphInfo.title}
+      <div class="c-list__item">
+        <div
+          class="c-list__item__icon"
+          class:is-orange={graphInfo.type === GraphType.UNDIRECTED_GRAPH}
+          class:is-purple={graphInfo.type === GraphType.DIRECTED_GRAPH}>
+          <SvgImg src="/images/dashboard/graph.svg" />
         </div>
-        <div class="c-list__item__description">
-          <div>Nodes: {graphInfo.nodeCount}</div>
-          <div>Edges: {graphInfo.edgeCount}</div>
+        <div class="c-list__item__content">
+          <div class="c-list__item__title">
+            {graphInfo.title}
+          </div>
+          <div class="c-list__item__description">
+            <div>Nodes: {graphInfo.nodeCount}</div>
+            <div>Edges: {graphInfo.edgeCount}</div>
+          </div>
+          <div
+            class="c-list__item__action"
+            on:click={() => page(`/edit?id=${graphInfo.id}`)}>
+            Go To
+            <i
+              class="material-icons c-list__item__action__icon">
+              arrow_forward
+            </i>
+          </div>
         </div>
         <div
-          class="c-list__item__action"
-          on:click="{() => page(`/edit?id=${graphInfo.id}`)}"
-        >
-          Go To
-          <i class="material-icons c-list__item__action__icon">
-            arrow_forward
-          </i>
+          class="c-list__item__menu"
+          on:click={() => removeGraph(graphInfo.id)}>
+          <i class="material-icons">close</i>
         </div>
       </div>
-      <div
-        class="c-list__item__menu"
-        on:click="{() => removeGraph(graphInfo.id)}"
-      >
-        <i class="material-icons">close</i>
-      </div>
-    </div>
     {/each}
   </div>
 </div>

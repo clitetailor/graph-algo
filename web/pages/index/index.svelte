@@ -2,43 +2,43 @@
   <div class="c-home__left">
     <header class="c-header">
       {#if !comp}
-      <nav class="c-navbar">
-        <div class="c-navbar__item">
-          <a on:click="{() => page('/login')}">Login</a>
-        </div>
-        <div class="c-navbar__item">
-          <a on:click="{() => page('/signup')}">Signup</a>
-        </div>
-      </nav>
+        <nav class="c-navbar">
+          <div class="c-navbar__item">
+            <a on:click={() => page('/login')}>Login</a>
+          </div>
+          <div class="c-navbar__item">
+            <a on:click={() => page('/signup')}>Signup</a>
+          </div>
+        </nav>
       {:else}
-      <nav class="c-navbar">
-        <div class="c-navbar__item">
-          <a on:click="{() => page('/')}">
-            <i class="material-icons">arrow_back</i>
-            Back
-          </a>
-        </div>
-      </nav>
+        <nav class="c-navbar">
+          <div class="c-navbar__item">
+            <a on:click={() => page('/')}>
+              <i class="material-icons">arrow_back</i>
+              Back
+            </a>
+          </div>
+        </nav>
       {/if}
     </header>
 
     <main class="c-main">
       {#if !comp}
-      <div class="c-main__title">
-        <h1>Graph Algo</h1>
-      </div>
-      <div class="c-main__getting-started">
-        <button on:click="{() => page('/signup')}">
-          Getting Started
-        </button>
-      </div>
+        <div class="c-main__title">
+          <h1>Graph Algo</h1>
+        </div>
+        <div class="c-main__getting-started">
+          <button on:click={() => page('/signup')}>
+            Getting Started
+          </button>
+        </div>
       {:else}
-      <svelte:component this="{comp}"></svelte:component>
+        <svelte:component this={comp} />
       {/if}
     </main>
   </div>
 
-  <div class="c-home__right"></div>
+  <div class="c-home__right" />
 </div>
 
 <style>

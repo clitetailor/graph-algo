@@ -1,38 +1,33 @@
 <div class="c-toolbar">
   <div
     class="c-toolbar__icon"
-    class:is-active="{mode === Mode.SELECT}"
-    on:click="{() => setMode(Mode.SELECT)}"
-  >
-    <SvgImg src="/images/edit/select-mode.svg"></SvgImg>
+    class:is-active={mode === Mode.SELECT}
+    on:click={() => setMode(Mode.SELECT)}>
+    <SvgImg src="/images/edit/select-mode.svg" />
   </div>
   <div
     class="c-toolbar__icon"
-    class:is-active="{mode === Mode.MOVE}"
-    on:click="{() => setMode(Mode.MOVE)}"
-  >
-    <SvgImg src="/images/edit/move-mode.svg"></SvgImg>
+    class:is-active={mode === Mode.MOVE}
+    on:click={() => setMode(Mode.MOVE)}>
+    <SvgImg src="/images/edit/move-mode.svg" />
   </div>
   <div
     class="c-toolbar__icon"
-    class:is-active="{mode === Mode.NODE}"
-    on:click="{() => setMode(Mode.NODE)}"
-  >
-    <SvgImg src="/images/edit/node-mode.svg"></SvgImg>
+    class:is-active={mode === Mode.NODE}
+    on:click={() => setMode(Mode.NODE)}>
+    <SvgImg src="/images/edit/node-mode.svg" />
   </div>
   <div
     class="c-toolbar__icon"
-    class:is-active="{mode === Mode.LINE}"
-    on:click="{() => setMode(Mode.LINE)}"
-  >
-    <SvgImg src="/images/edit/line-mode.svg"></SvgImg>
+    class:is-active={mode === Mode.LINE}
+    on:click={() => setMode(Mode.LINE)}>
+    <SvgImg src="/images/edit/line-mode.svg" />
   </div>
   <div
     class="c-toolbar__icon"
-    class:is-active="{mode === Mode.REMOVE}"
-    on:click="{() => setMode(Mode.REMOVE)}"
-  >
-    <SvgImg src="/images/edit/erase-mode.svg"></SvgImg>
+    class:is-active={mode === Mode.REMOVE}
+    on:click={() => setMode(Mode.REMOVE)}>
+    <SvgImg src="/images/edit/erase-mode.svg" />
   </div>
 </div>
 

@@ -3,26 +3,20 @@
   <div class="c-group__content c-grid">
     <div
       class="c-grid__item c-card is-orange"
-      on:click="{createUndirectedGraph}"
-    >
+      on:click={createUndirectedGraph}>
       <div class="c-card__icon">
         <i class="material-icons">add</i>
       </div>
-      <div class="c-card__title">
-        Undirected Graph
-      </div>
+      <div class="c-card__title">Undirected Graph</div>
     </div>
 
     <div
       class="c-grid__item c-card is-purple"
-      on:click="{createDirectedGraph}"
-    >
+      on:click={createDirectedGraph}>
       <div class="c-card__icon">
         <i class="material-icons">add</i>
       </div>
-      <div class="c-card__title">
-        Directed Graph
-      </div>
+      <div class="c-card__title">Directed Graph</div>
     </div>
   </div>
 </div>

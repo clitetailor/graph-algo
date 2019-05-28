@@ -1,38 +1,28 @@
-<form action="#" class="c-form" on:submit="{onSubmit}">
+<form action="#" class="c-form" on:submit={onSubmit}>
   <div class="c-form__title">
     <h2>Signup</h2>
   </div>
   <div class="c-input__field">
     <label for="username">Username</label>
-    <input
-      type="text"
-      name="username"
-      bind:value="{username}"
-    />
+    <input type="text" name="username" bind:value={username} />
   </div>
   <div class="c-input__field">
     <label for="password">Password</label>
     <input
       type="password"
       name="password"
-      bind:value="{password}"
-    />
+      bind:value={password} />
   </div>
   <div class="c-input__field">
     <label for="confirm-password">Password Confirm</label>
     <input
       type="password"
       name="confirm-password"
-      bind:value="{confirmPassword}"
-    />
+      bind:value={confirmPassword} />
   </div>
-  <div class="c-error__message">
-    {errMsg}
-  </div>
+  <div class="c-error__message">{errMsg}</div>
   <div class="c-button__groups">
-    <button class="c-button">
-      Submit
-    </button>
+    <button class="c-button">Submit</button>
   </div>
 </form>
 

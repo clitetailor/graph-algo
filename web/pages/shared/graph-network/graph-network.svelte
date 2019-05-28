@@ -1,12 +1,11 @@
 <svg
-  bind:this="{svg}"
+  bind:this={svg}
   width="100%"
   height="100%"
-  on:mousedown="{onSvgMouseDown}"
-  on:mousewheel="{onSvgMouseWheel}"
-  on:click="{_onSvgClick}"
-  class="c-graph-network"
->
+  on:mousedown={onSvgMouseDown}
+  on:mousewheel={onSvgMouseWheel}
+  on:click={_onSvgClick}
+  class="c-graph-network">
   <defs>
     <marker
       id="c-graph-network__arrow"
@@ -15,8 +14,7 @@
       refY="5"
       markerWidth="6"
       markerHeight="6"
-      orient="auto-start-reverse"
-    >
+      orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" />
     </marker>
     <marker
@@ -26,123 +24,107 @@
       refY="5"
       markerWidth="6"
       markerHeight="6"
-      orient="auto-start-reverse"
-    >
+      orient="auto-start-reverse">
       <path
         class="c-arrow is-selected"
-        d="M 0 0 L 10 5 L 0 10 z"
-      />
+        d="M 0 0 L 10 5 L 0 10 z" />
     </marker>
   </defs>
   <g transform="translate({offsetX}, {offsetY}) scale({scale})">
     <g>
       {#each graph.edges as edge (edgeId(edge))}
-      <!--  -->
-      {#if edge.bidirect}
-      <!--  -->
-      {#await caculateCurve(edge, radius) then curve}
-      <g
-        class="c-edge"
-        class:is-selected="{edge.selected}"
-        data-source-id="{edge.source.id}"
-        data-target-id="{edge.target.id}"
-        on:click="{_onEdgeClick(edge)}"
-      >
-        <path
-          d="M {curve.source.x} {curve.source.y} Q {curve.mid.x} {curve.mid.y} {curve.target.x} {curve.target.y}"
-          marker-end="{getEdgeMarker(edge)}"
-        ></path>
-        {#await curveCenter(curve.source, curve.mid,
-        curve.target) then center}
-        <text
-          x="{center.x}"
-          y="{center.y}"
-          text-anchor="middle"
-          alignment-baseline="middle"
-        >
-          {edge.weight}
-        </text>
-        {/await}
-      </g>
-      {/await}
-      <!--  -->
-      {:else}
-      <!--  -->
-      {#await lineCenter(edge) then center}
-      <g
-        class="c-edge"
-        class:is-selected="{edge.selected}"
-        data-source-id="{edge.source.id}"
-        data-target-id="{edge.target.id}"
-        on:click="{_onEdgeClick(edge)}"
-      >
-        <path
-          d="{drawLine(edge, radius)}"
-          marker-end="{getEdgeMarker(edge)}"
-        ></path>
-        <text
-          x="{center.x}"
-          y="{center.y}"
-          text-anchor="middle"
-          alignment-baseline="middle"
-        >
-          {edge.weight}
-        </text>
-      </g>
-      {/await}
-      <!--  -->
-      {/if}
-      <!--  -->
+        {#if edge.bidirect}
+          {#await caculateCurve(edge, radius) then curve}
+            <g
+              class="c-edge"
+              class:is-selected={edge.selected}
+              data-source-id={edge.source.id}
+              data-target-id={edge.target.id}
+              on:click={_onEdgeClick(edge)}>
+              <path
+                d="M {curve.source.x}
+                {curve.source.y} Q {curve.mid.x}
+                {curve.mid.y}
+                {curve.target.x}
+                {curve.target.y}"
+                marker-end={getEdgeMarker(edge)} />
+              {#await curveCenter(curve.source, curve.mid, curve.target) then center}
+                <text
+                  x={center.x}
+                  y={center.y}
+                  text-anchor="middle"
+                  alignment-baseline="middle">
+                  {edge.weight}
+                </text>
+              {/await}
+            </g>
+          {/await}
+        {:else}
+          {#await lineCenter(edge) then center}
+            <g
+              class="c-edge"
+              class:is-selected={edge.selected}
+              data-source-id={edge.source.id}
+              data-target-id={edge.target.id}
+              on:click={_onEdgeClick(edge)}>
+              <path
+                d={drawLine(edge, radius)}
+                marker-end={getEdgeMarker(edge)} />
+              <text
+                x={center.x}
+                y={center.y}
+                text-anchor="middle"
+                alignment-baseline="middle">
+                {edge.weight}
+              </text>
+            </g>
+          {/await}
+        {/if}
       {/each}
     </g>
     <g>
       {#each graph.nodes as node (node.id)}
-      <g
-        class="c-node"
-        class:is-selected="{node.selected}"
-        class:has-title="{node.title}"
-        data-node-id="{node.id}"
-        on:click="{_onNodeClick(node)}"
-        on:mousedown="{onNodeMouseDown(node)}"
-      >
-        <circle
-          cx="{node.x}"
-          cy="{node.y}"
-          r="{node.radius || radius}"
-          style="{hits ? `fill: ${caculateHitsNodeBackground(node)}` : ''}"
-        ></circle>
-        <text
-          class="c-node__title"
-          x="{node.x}"
-          y="{node.y}"
-          text-anchor="middle"
-          alignment-baseline="middle"
-        >
-          {node.title || node.id}
-        </text>
-        {#if node.percentage}
-        <text
-          class="c-node__percentage"
-          x="{node.x}"
-          y="{node.y + 14}"
-          text-anchor="middle"
-          alignment-baseline="middle"
-        >
-          {node.percentage}%
-        </text>
-        {/if}
-      </g>
+        <g
+          class="c-node"
+          class:is-selected={node.selected}
+          class:has-title={node.title}
+          data-node-id={node.id}
+          on:click={_onNodeClick(node)}
+          on:mousedown={onNodeMouseDown(node)}>
+          <circle
+            cx={node.x}
+            cy={node.y}
+            r={node.radius || radius}
+            style={hits ? `fill: ${caculateHitsNodeBackground(node)}` : ''} />
+          <text
+            class="c-node__title"
+            x={node.x}
+            y={node.y}
+            text-anchor="middle"
+            alignment-baseline="middle">
+            {node.title || node.id}
+          </text>
+          {#if node.percentage}
+            <text
+              class="c-node__percentage"
+              x={node.x}
+              y={node.y + 14}
+              text-anchor="middle"
+              alignment-baseline="middle">
+              {node.percentage}%
+            </text>
+          {/if}
+        </g>
       {/each}
     </g>
   </g>
 </svg>
 
 <svelte:window
-  on:mouseup="{onWindowMouseUp}"
-  on:mousemove="{onWindowMouseMove}"
-></svelte:window>
+  on:mouseup={onWindowMouseUp}
+  on:mousemove={onWindowMouseMove} />
 
-<svelte:options accessors></svelte:options>
+<svelte:options accessors />
 
 <style>
   .c-graph-network {
@@ -185,8 +167,7 @@
     font-size: 12px;
   }
 
-  .c-edge path,
-  .c-edge line {
+  .c-edge path {
     stroke: black;
     stroke-width: 2px;
     fill: transparent;
@@ -206,8 +187,7 @@
     cursor: pointer;
   }
 
-  .c-edge.is-selected path,
-  .c-edge.is-selected line {
+  .c-edge.is-selected path {
     stroke: hsl(28, 100%, 50%);
   }
 

@@ -1,33 +1,30 @@
 <div class="c-page-rank">
   <div class="c-page-rank__toolbar">
     <Toolbar
-      bind:this="{toolbar}"
-      bind:mode="{mode}"
-      onModeChange="{setMode}"
-    ></Toolbar>
+      bind:this={toolbar}
+      bind:mode
+      onModeChange={setMode} />
   </div>
 
   <div class="c-page-rank__main">
     <GraphNetwork
-      bind:this="{graphViewer}"
-      bind:mode="{mode}"
-      bind:graph="{graph}"
-      onSvgClick="{onSvgClick}"
-      onNodeClick="{onNodeClick}"
-      onEdgeClick="{onEdgeClick}"
-    ></GraphNetwork>
+      bind:this={graphViewer}
+      bind:mode
+      bind:graph
+      {onSvgClick}
+      {onNodeClick}
+      {onEdgeClick} />
     <div class="c-page-rank__menu">
-      <Menu onBack="{onBack}"></Menu>
+      <Menu {onBack} />
     </div>
   </div>
 
   <div class="c-page-rank__sidebar">
     <Sidebar
-      bind:this="{sidebar}"
-      bind:graph="{graph}"
-      onNodeClick="{onNodeClick}"
-      restartSimulation="{() => graphViewer.restartSimulation()}"
-    ></Sidebar>
+      bind:this={sidebar}
+      bind:graph
+      {onNodeClick}
+      restartSimulation={() => graphViewer.restartSimulation()} />
   </div>
 </div>
 

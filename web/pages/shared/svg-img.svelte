@@ -1,4 +1,4 @@
-<div class="c-svg-img" bind:this="{svgImg}"></div>
+<div class="c-svg-img" bind:this={svgImg} />
 
 <style>
   .c-svg-img {

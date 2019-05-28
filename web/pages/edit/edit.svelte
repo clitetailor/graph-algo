@@ -1,33 +1,24 @@
 <div class="c-edit">
   <div class="c-edit__toolbar">
-    <Toolbar bind:mode="{mode}"></Toolbar>
+    <Toolbar bind:mode />
   </div>
 
   <div class="c-edit__main">
     <GraphNetwork
-      mode="{mode}"
-      bind:mode="{mode}"
-      bind:this="{graphViewer}"
-      bind:graph="{graph}"
-      onSvgClick="{onSvgClick}"
-      onNodeClick="{onNodeClick}"
-      onEdgeClick="{onEdgeClick}"
-    ></GraphNetwork>
+      {mode}
+      bind:mode
+      bind:this={graphViewer}
+      bind:graph
+      {onSvgClick}
+      {onNodeClick}
+      {onEdgeClick} />
     <div class="c-edit__menu">
-      <Menu
-        onBack="{onBack}"
-        onSave="{onSave}"
-        onDownload="{onDownload}"
-        onUpload="{onUpload}"
-      ></Menu>
+      <Menu {onBack} {onSave} {onDownload} {onUpload} />
     </div>
   </div>
 
   <div class="c-edit__sidebar">
-    <Sidebar
-      bind:this="{sidebar}"
-      bind:graph="{graph}"
-    ></Sidebar>
+    <Sidebar bind:this={sidebar} bind:graph />
   </div>
 </div>
 
@@ -123,7 +114,7 @@
       await tick()
       graph = new DirectedGraph()
     }
-    
+
     graphViewer.restartSimulation()
   })
 
@@ -169,7 +160,6 @@
       } else {
         graph = DirectedGraph.fromJSON(loadedGraph)
       }
-
     }
     graphViewer.restartSimulation()
 

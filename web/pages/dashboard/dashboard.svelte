@@ -1,12 +1,12 @@
 <div class="c-dashboard">
   <header class="c-dashboard__header">
-    <Navbar></Navbar>
+    <Navbar />
   </header>
 
   <main class="c-dashboard__main">
     <div class="u-content-width">
-      <Create></Create>
-      <Recent></Recent>
+      <Create />
+      <Recent />
     </div>
   </main>
 </div>

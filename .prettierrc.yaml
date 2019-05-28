@@ -1,3 +1,6 @@
 printWidth: 64
 semi: false
 singleQuote: true
+plugins:
+  - prettier-plugin-svelte
+svelteSortOrder: markup-styles-scripts

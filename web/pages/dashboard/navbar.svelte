@@ -2,7 +2,7 @@
   <div class="c-navbar__content u-content-width">
     <div class="c-navbar__title">Dashboard</div>
     <div class="c-navbar__item-list">
-      <div class="c-navbar__item" on:click="{() => logout()}">
+      <div class="c-navbar__item" on:click={() => logout()}>
         Logout
       </div>
     </div>

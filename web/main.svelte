@@ -1,5 +1,5 @@
-<svelte:component this="{comp}"></svelte:component>
-<a class="c-downloader" id="downloader" href="/"></a>
+<svelte:component this={comp} />
+<a class="c-downloader" id="downloader" href="/" />
 
 <style>
   .c-downloader {

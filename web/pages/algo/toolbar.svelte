@@ -1,17 +1,15 @@
 <div class="c-toolbar">
   <div
     class="c-toolbar__icon"
-    class:is-active="{mode === Mode.SELECT}"
-    on:click="{() => setMode(Mode.SELECT)}"
-  >
-    <SvgImg src="/images/edit/select-mode.svg"></SvgImg>
+    class:is-active={mode === Mode.SELECT}
+    on:click={() => setMode(Mode.SELECT)}>
+    <SvgImg src="/images/edit/select-mode.svg" />
   </div>
   <div
     class="c-toolbar__icon"
-    class:is-active="{mode === Mode.MOVE}"
-    on:click="{() => setMode(Mode.MOVE)}"
-  >
-    <SvgImg src="/images/edit/move-mode.svg"></SvgImg>
+    class:is-active={mode === Mode.MOVE}
+    on:click={() => setMode(Mode.MOVE)}>
+    <SvgImg src="/images/edit/move-mode.svg" />
   </div>
 </div>
 

@@ -3,10 +3,9 @@
     <input
       class="c-sidebar__title"
       type="text"
-      bind:value="{graph.title}"
-      bind:this="{titleInput}"
-    />
-    <i class="material-icons" on:click="{() => focusTitle()}">
+      bind:value={graph.title}
+      bind:this={titleInput} />
+    <i class="material-icons" on:click={() => focusTitle()}>
       edit
     </i>
   </div>
@@ -15,335 +14,306 @@
     <div class="o-tabs__tab-bar">
       <div
         class="o-tabs__tab"
-        class:is-active="{tab === Tab.INFO}"
-        on:click="{() => showInfo()}"
-      >
-        <div class="o-tabs__tab-decorator">
-          Info
-        </div>
+        class:is-active={tab === Tab.INFO}
+        on:click={() => showInfo()}>
+        <div class="o-tabs__tab-decorator">Info</div>
       </div>
       <div
         class="o-tabs__tab"
-        class:is-active="{tab === Tab.ACTIONS}"
-        on:click="{() => showActions()}"
-      >
-        <div class="o-tabs__tab-decorator">
-          Actions
-        </div>
+        class:is-active={tab === Tab.ACTIONS}
+        on:click={() => showActions()}>
+        <div class="o-tabs__tab-decorator">Actions</div>
       </div>
     </div>
 
     {#if isDefaultInfoActive()}
-    <div class="o-tabs__panel">
-      <div class="c-group">
-        <div class="c-group__title">node custom attributes</div>
-        <div class="c-group__list">
-          {#each graph.nodeAttributes as attr}
-          <div class="c-field">
-            <div class="c-field__label">
-              {attr.name}
-            </div>
-            <div
-              class="c-field__action"
-              on:click="{() => removeNodeAttribute(attr)}"
-            >
-              <i class="material-icons">close</i>
-            </div>
+      <div class="o-tabs__panel">
+        <div class="c-group">
+          <div class="c-group__title">
+            node custom attributes
           </div>
-          {/each}
+          <div class="c-group__list">
+            {#each graph.nodeAttributes as attr}
+              <div class="c-field">
+                <div class="c-field__label">{attr.name}</div>
+                <div
+                  class="c-field__action"
+                  on:click={() => removeNodeAttribute(attr)}>
+                  <i class="material-icons">close</i>
+                </div>
+              </div>
+            {/each}
+          </div>
         </div>
-      </div>
 
-      <div class="c-group">
-        <div class="c-group__title">edge custom attributes</div>
-        <div class="c-group__list">
-          {#each graph.edgeAttributes as attr}
-          <div class="c-field">
-            <div class="c-field__label">
-              {attr.name}
-            </div>
-            <div
-              class="c-field__action"
-              on:click="{() => removeEdgeAttribute(attr)}"
-            >
-              <i class="material-icons">close</i>
-            </div>
+        <div class="c-group">
+          <div class="c-group__title">
+            edge custom attributes
           </div>
-          {/each}
+          <div class="c-group__list">
+            {#each graph.edgeAttributes as attr}
+              <div class="c-field">
+                <div class="c-field__label">{attr.name}</div>
+                <div
+                  class="c-field__action"
+                  on:click={() => removeEdgeAttribute(attr)}>
+                  <i class="material-icons">close</i>
+                </div>
+              </div>
+            {/each}
+          </div>
         </div>
       </div>
-    </div>
     {:else if isNodeInfoActive()}
-    <div class="o-tabs__panel">
-      <div class="c-group">
-        <div class="c-group__title">node origin attributes</div>
-        <div class="c-group__list">
-          {#if currentNode}
-          <!--  -->
-          {#each graph.nodeReservedAttributes as attr}
-          <!--  -->
-          {#if !attr.hidden}
-          <div class="c-field">
-            <div class="c-field__label">
-              {readCamelCase(attr.name)}
-            </div>
-            <div class="c-field__input">
-              <input
-                type="text"
-                class="o-input c-input"
-                class:is-not-editable="{attr.editable !== undefined && !attr.editable}"
-                d-value="{showAttribute(currentNode, attr)}"
-                value="{showAttribute(currentNode, attr)}"
-                on:change="{(event) => setAttribute(currentNode, attr, event.target.value)}"
-              />
-            </div>
+      <div class="o-tabs__panel">
+        <div class="c-group">
+          <div class="c-group__title">
+            node origin attributes
           </div>
-          {/if}
-          <!--  -->
-          {/each}
-          <!--  -->
-          {/if}
+          <div class="c-group__list">
+            {#if currentNode}
+              {#each graph.nodeReservedAttributes as attr}
+                {#if !attr.hidden}
+                  <div class="c-field">
+                    <div class="c-field__label">
+                      {readCamelCase(attr.name)}
+                    </div>
+                    <div class="c-field__input">
+                      <input
+                        type="text"
+                        class="o-input c-input"
+                        class:is-not-editable={attr.editable !== undefined && !attr.editable}
+                        d-value={showAttribute(currentNode, attr)}
+                        value={showAttribute(currentNode, attr)}
+                        on:change={event => setAttribute(currentNode, attr, event.target.value)} />
+                    </div>
+                  </div>
+                {/if}
+              {/each}
+            {/if}
+          </div>
         </div>
-      </div>
 
-      <div class="c-group">
-        <div class="c-group__title">node custom attributes</div>
-        <div class="c-group__list">
-          {#if currentNode}
-          <!--  -->
-          {#each graph.nodeAttributes as attr}
-          <!--  -->
-          {#if !attr.hidden}
-          <div class="c-field">
-            <div class="c-field__label">
-              {readCamelCase(attr.name)}
-            </div>
-            <div class="c-field__input">
-              <input
-                type="text"
-                class="o-input c-input"
-                class:is-not-editable="{attr.editable !== undefined && !attr.editable}"
-                value="{showAttribute(currentNode, attr)}"
-                on:change="{(event) => setAttribute(currentNode, attr, event.target.value)}"
-              />
-            </div>
+        <div class="c-group">
+          <div class="c-group__title">
+            node custom attributes
           </div>
-          {/if}
-          <!--  -->
-          {/each}
-          <!--  -->
-          {/if}
+          <div class="c-group__list">
+            {#if currentNode}
+              {#each graph.nodeAttributes as attr}
+                {#if !attr.hidden}
+                  <div class="c-field">
+                    <div class="c-field__label">
+                      {readCamelCase(attr.name)}
+                    </div>
+                    <div class="c-field__input">
+                      <input
+                        type="text"
+                        class="o-input c-input"
+                        class:is-not-editable={attr.editable !== undefined && !attr.editable}
+                        value={showAttribute(currentNode, attr)}
+                        on:change={event => setAttribute(currentNode, attr, event.target.value)} />
+                    </div>
+                  </div>
+                {/if}
+              {/each}
+            {/if}
+          </div>
         </div>
-      </div>
 
-      <div class="c-group">
-        <div class="c-group__title">new custom attribute</div>
-        <div class="c-group__list">
-          <div class="c-field">
-            <div class="c-field__label">name</div>
-            <div class="c-field__input">
-              <input
-                type="text"
-                class="o-input c-input"
-                bind:value="{newNodeAttribute.name}"
-              />
+        <div class="c-group">
+          <div class="c-group__title">new custom attribute</div>
+          <div class="c-group__list">
+            <div class="c-field">
+              <div class="c-field__label">name</div>
+              <div class="c-field__input">
+                <input
+                  type="text"
+                  class="o-input c-input"
+                  bind:value={newNodeAttribute.name} />
+              </div>
             </div>
-          </div>
 
-          <div class="c-field">
-            <div class="c-field__label">type</div>
-            <div class="c-field__input">
-              <select
-                type="text"
-                class="o-input"
-                bind:value="{newNodeAttribute.type}"
-              >
-                <option value="string">string</option>
-                <option value="int">int</option>
-                <option value="float">float</option>
-              </select>
+            <div class="c-field">
+              <div class="c-field__label">type</div>
+              <div class="c-field__input">
+                <select
+                  type="text"
+                  class="o-input"
+                  bind:value={newNodeAttribute.type}>
+                  <option value="string">string</option>
+                  <option value="int">int</option>
+                  <option value="float">float</option>
+                </select>
+              </div>
             </div>
-          </div>
 
-          <div class="c-field">
-            <div class="c-field__label">default value</div>
-            <div class="c-field__input">
-              <input
-                type="text"
-                class="o-input c-input"
-                value="{showAttributeDefaultValue(newNodeAttribute)}"
-                on:change="{(event) => setAttributeDefaultValue(newNodeAttribute, event.target.value)}"
-              />
+            <div class="c-field">
+              <div class="c-field__label">default value</div>
+              <div class="c-field__input">
+                <input
+                  type="text"
+                  class="o-input c-input"
+                  value={showAttributeDefaultValue(newNodeAttribute)}
+                  on:change={event => setAttributeDefaultValue(newNodeAttribute, event.target.value)} />
+              </div>
             </div>
-          </div>
 
-          {#if addNodeAttributeErrorMsg}
-          <div class="c-field">
-            <div class="o-error">
-              {addNodeAttributeErrorMsg}
+            {#if addNodeAttributeErrorMsg}
+              <div class="c-field">
+                <div class="o-error">
+                  {addNodeAttributeErrorMsg}
+                </div>
+              </div>
+            {/if}
+
+            <div class="c-field c-field--button">
+              <button
+                class="o-button o-button--active"
+                on:click={addNodeAttribute}>
+                Add
+              </button>
             </div>
-          </div>
-          {/if}
-
-          <div class="c-field c-field--button">
-            <button
-              class="o-button o-button--active"
-              on:click="{addNodeAttribute}"
-            >
-              Add
-            </button>
           </div>
         </div>
       </div>
-    </div>
     {:else if isEdgeInfoActive()}
-    <div class="o-tabs__panel">
-      <div class="c-group">
-        <div class="c-group__title">edge origin attributes</div>
-        <div class="c-group__list">
-          {#if currentEdge}
-          <!--  -->
-          {#each graph.edgeReservedAttributes as attr}
-          <!--  -->
-          {#if !attr.hidden}
-          <div class="c-field">
-            <div class="c-field__label">
-              {readCamelCase(attr.name)}
-            </div>
-            <div class="c-field__input">
-              <input
-                type="text"
-                class="o-input c-input"
-                class:is-not-editable="{attr.editable !== undefined && !attr.editable}"
-                d-value="{showAttribute(currentEdge, attr)}"
-                value="{showAttribute(currentEdge, attr)}"
-                on:change="{(event) => setAttribute(currentEdge, attr, event.target.value)}"
-              />
-            </div>
+      <div class="o-tabs__panel">
+        <div class="c-group">
+          <div class="c-group__title">
+            edge origin attributes
           </div>
-          {/if}
-          <!--  -->
-          {/each}
-          <!--  -->
-          {/if}
+          <div class="c-group__list">
+            {#if currentEdge}
+              {#each graph.edgeReservedAttributes as attr}
+                {#if !attr.hidden}
+                  <div class="c-field">
+                    <div class="c-field__label">
+                      {readCamelCase(attr.name)}
+                    </div>
+                    <div class="c-field__input">
+                      <input
+                        type="text"
+                        class="o-input c-input"
+                        class:is-not-editable={attr.editable !== undefined && !attr.editable}
+                        d-value={showAttribute(currentEdge, attr)}
+                        value={showAttribute(currentEdge, attr)}
+                        on:change={event => setAttribute(currentEdge, attr, event.target.value)} />
+                    </div>
+                  </div>
+                {/if}
+              {/each}
+            {/if}
+          </div>
         </div>
-      </div>
 
-      <div class="c-group">
-        <div class="c-group__title">edge custom attributes</div>
-        <div class="c-group__list">
-          {#if currentEdge}
-          <!--  -->
-          {#each graph.edgeAttributes as attr}
-          <!--  -->
-          {#if !attr.hidden}
-          <div class="c-field">
-            <div class="c-field__label">
-              {readCamelCase(attr.name)}
-            </div>
-            <div class="c-field__input">
-              <input
-                type="text"
-                class="o-input c-input"
-                class:is-not-editable="{attr.editable !== undefined && !attr.editable}"
-                d-value="{showAttribute(currentEdge, attr)}"
-                value="{showAttribute(currentEdge, attr)}"
-                on:change="{(event) => setAttribute(currentEdge, attr, event.target.value)}"
-              />
-            </div>
+        <div class="c-group">
+          <div class="c-group__title">
+            edge custom attributes
           </div>
-          {/if}
-          <!--  -->
-          {/each}
-          <!--  -->
-          {/if}
+          <div class="c-group__list">
+            {#if currentEdge}
+              {#each graph.edgeAttributes as attr}
+                {#if !attr.hidden}
+                  <div class="c-field">
+                    <div class="c-field__label">
+                      {readCamelCase(attr.name)}
+                    </div>
+                    <div class="c-field__input">
+                      <input
+                        type="text"
+                        class="o-input c-input"
+                        class:is-not-editable={attr.editable !== undefined && !attr.editable}
+                        d-value={showAttribute(currentEdge, attr)}
+                        value={showAttribute(currentEdge, attr)}
+                        on:change={event => setAttribute(currentEdge, attr, event.target.value)} />
+                    </div>
+                  </div>
+                {/if}
+              {/each}
+            {/if}
+          </div>
         </div>
-      </div>
 
-      <div class="c-group">
-        <div class="c-group__title">new custom attribute</div>
-        <div class="c-group__list">
-          <div class="c-field">
-            <div class="c-field__label">name</div>
-            <div class="c-field__input">
-              <input
-                type="text"
-                class="o-input c-input"
-                bind:value="{newEdgeAttribute.name}"
-              />
+        <div class="c-group">
+          <div class="c-group__title">new custom attribute</div>
+          <div class="c-group__list">
+            <div class="c-field">
+              <div class="c-field__label">name</div>
+              <div class="c-field__input">
+                <input
+                  type="text"
+                  class="o-input c-input"
+                  bind:value={newEdgeAttribute.name} />
+              </div>
             </div>
-          </div>
 
-          <div class="c-field">
-            <div class="c-field__label">type</div>
-            <div class="c-field__input">
-              <select
-                type="text"
-                class="o-input"
-                bind:value="{newEdgeAttribute.type}"
-              >
-                <option value="string">string</option>
-                <option value="int">int</option>
-                <option value="float">float</option>
-              </select>
+            <div class="c-field">
+              <div class="c-field__label">type</div>
+              <div class="c-field__input">
+                <select
+                  type="text"
+                  class="o-input"
+                  bind:value={newEdgeAttribute.type}>
+                  <option value="string">string</option>
+                  <option value="int">int</option>
+                  <option value="float">float</option>
+                </select>
+              </div>
             </div>
-          </div>
 
-          <div class="c-field">
-            <div class="c-field__label">default value</div>
-            <div class="c-field__input">
-              <input
-                type="text"
-                class="o-input c-input"
-                value="{showAttributeDefaultValue(newEdgeAttribute)}"
-                on:change="{(event) => setAttributeDefaultValue(newEdgeAttribute, event.target.value)}"
-              />
+            <div class="c-field">
+              <div class="c-field__label">default value</div>
+              <div class="c-field__input">
+                <input
+                  type="text"
+                  class="o-input c-input"
+                  value={showAttributeDefaultValue(newEdgeAttribute)}
+                  on:change={event => setAttributeDefaultValue(newEdgeAttribute, event.target.value)} />
+              </div>
             </div>
-          </div>
 
-          {#if addEdgeAttributeErrorMsg}
-          <div class="c-field">
-            <div class="o-error">
-              {addEdgeAttributeErrorMsg}
+            {#if addEdgeAttributeErrorMsg}
+              <div class="c-field">
+                <div class="o-error">
+                  {addEdgeAttributeErrorMsg}
+                </div>
+              </div>
+            {/if}
+
+            <div class="c-field c-field--button">
+              <button
+                class="o-button o-button--active"
+                on:click={addEdgeAttribute}>
+                Add
+              </button>
             </div>
-          </div>
-          {/if}
-
-          <div class="c-field c-field--button">
-            <button
-              class="o-button o-button--active"
-              on:click="{addEdgeAttribute}"
-            >
-              Add
-            </button>
           </div>
         </div>
       </div>
-    </div>
     {:else}
-    <div class="o-tabs__panel">
-      <div class="c-group">
-        <div class="c-group__title">algorithms</div>
-        <div class="c-group__list">
-          <div class="c-field">
-            <div class="c-field__label">page rank</div>
-            <div
-              class="c-field__action"
-              on:click="{gotoPageRank}"
-            >
-              <i class="material-icons">arrow_forward</i>
+      <div class="o-tabs__panel">
+        <div class="c-group">
+          <div class="c-group__title">algorithms</div>
+          <div class="c-group__list">
+            <div class="c-field">
+              <div class="c-field__label">page rank</div>
+              <div
+                class="c-field__action"
+                on:click={gotoPageRank}>
+                <i class="material-icons">arrow_forward</i>
+              </div>
             </div>
-          </div>
 
-          <div class="c-field">
-            <div class="c-field__label">hits</div>
-            <div class="c-field__action" on:click="{gotoHits}">
-              <i class="material-icons">arrow_forward</i>
+            <div class="c-field">
+              <div class="c-field__label">hits</div>
+              <div class="c-field__action" on:click={gotoHits}>
+                <i class="material-icons">arrow_forward</i>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
     {/if}
   </div>
 </div>
