@@ -108,6 +108,10 @@ export class UndirectedGraph {
           : {})
       }
     })
+    graph.nodes.forEach(n => {
+      n.x = parseFloat(n.x)
+      n.y = parseFloat(n.y)
+    })
     graph.edges = json.edges.map(e => {
       return {
         source: graph.nodes.find(n => n.id === e.sourceId),

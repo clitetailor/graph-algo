@@ -23,9 +23,11 @@ const httpServer = http.createServer(app)
 app.use('/process', proxy('http://localhost:6001'))
 
 app.use(cors())
-app.use(bodyParser.text())
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.text({ limit: '6mb' }))
+app.use(bodyParser.json({ limit: '6mb' }))
+app.use(
+  bodyParser.urlencoded({ extended: false, limit: '6mb' })
+)
 
 app.use(router)
 

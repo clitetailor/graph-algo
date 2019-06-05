@@ -29,7 +29,7 @@ const typeDefs = /* GraphQL */ `
     meta: [GraphAttributeDataInput]
   }
 
-  type GraphAttribute  {
+  type GraphAttribute {
     type: String
     name: String
     defaultValue: Any

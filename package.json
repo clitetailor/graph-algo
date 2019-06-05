@@ -10,7 +10,8 @@
     "web:build": "rollup -c rollup.config.js",
     "web:autobuild": "rollup -c rollup.config.js -w",
     "database:migrate": "sequelize db:migrate",
-    "prettier": "prettier --config .prettierrc.yaml"
+    "prettier": "prettier --config .prettierrc.yaml",
+    "prettier:all": "prettier --config .prettierrc.yaml --write web/**/*.svelte --write web/**/*.js --write web/**/*.html --write web/**/*.css --write server/**/*.js"
   },
   "main": "index.js",
   "repository": "https://github.com/clitetailor/graph-algo.git",

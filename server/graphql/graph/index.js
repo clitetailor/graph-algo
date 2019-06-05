@@ -27,7 +27,8 @@ const resolvers = {
         ],
         where: {
           userId
-        }
+        },
+        order: [['updatedAt', 'DESC']]
       })
 
       return graphs
