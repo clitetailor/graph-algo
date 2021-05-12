@@ -43,7 +43,7 @@
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.13",
     "material-design-icons": "^3.0.1",
-    "mathjs": "^5.9.0",
+    "mathjs": "^7.5.1",
     "memoizee": "^0.4.14",
     "moment": "^2.24.0",
     "page": "^1.11.4",
