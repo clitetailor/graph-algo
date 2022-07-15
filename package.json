@@ -52,7 +52,7 @@
     "rxjs": "^6.4.0",
     "sequelize": "^5.15.1",
     "subscriptions-transport-ws": "^0.9.16",
-    "svelte": "^3.2.2",
+    "svelte": "^3.49.0",
     "winston": "^3.2.1",
     "xml-beautifier": "^0.4.0"
   },
