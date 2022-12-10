@@ -37,7 +37,7 @@
     "cross-env": "^5.2.0",
     "d3": "^5.9.2",
     "del": "^4.1.1",
-    "express": "^4.16.4",
+    "express": "^4.17.3",
     "express-http-proxy": "^1.5.1",
     "graphql": "^14.2.0",
     "jsonwebtoken": "^8.5.1",
